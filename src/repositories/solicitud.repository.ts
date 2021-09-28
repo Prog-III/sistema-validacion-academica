@@ -1,7 +1,7 @@
 import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory, BelongsToAccessor} from '@loopback/repository';
+import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory, BelongsToAccessor, HasManyRepositoryFactory} from '@loopback/repository';
 import {MysqlDataSource} from '../datasources';
-import {Solicitud, SolicitudRelations, Proponente, SolicitudProponente, Comite, SolicitudComite, LineaInvestigacion, TipoSolicitud, Modalidad, EstadoSolicitud} from '../models';
+import {Solicitud, SolicitudRelations, Proponente, SolicitudProponente, Comite, SolicitudComite, LineaInvestigacion, TipoSolicitud, Modalidad, EstadoSolicitud, InvitacionEvaluar} from '../models';
 import {SolicitudProponenteRepository} from './solicitud-proponente.repository';
 import {ProponenteRepository} from './proponente.repository';
 import {SolicitudComiteRepository} from './solicitud-comite.repository';
@@ -10,6 +10,7 @@ import {LineaInvestigacionRepository} from './linea-investigacion.repository';
 import {TipoSolicitudRepository} from './tipo-solicitud.repository';
 import {ModalidadRepository} from './modalidad.repository';
 import {EstadoSolicitudRepository} from './estado-solicitud.repository';
+import {InvitacionEvaluarRepository} from './invitacion-evaluar.repository';
 
 export class SolicitudRepository extends DefaultCrudRepository<
   Solicitud,
@@ -35,10 +36,14 @@ export class SolicitudRepository extends DefaultCrudRepository<
 
   public readonly solicitud_pertenece_a_estado_solicitud: BelongsToAccessor<EstadoSolicitud, typeof Solicitud.prototype.id>;
 
+  public readonly invitacionesEvaluar: HasManyRepositoryFactory<InvitacionEvaluar, typeof Solicitud.prototype.id>;
+
   constructor(
-    @inject('datasources.mysql') dataSource: MysqlDataSource, @repository.getter('SolicitudProponenteRepository') protected solicitudProponenteRepositoryGetter: Getter<SolicitudProponenteRepository>, @repository.getter('ProponenteRepository') protected proponenteRepositoryGetter: Getter<ProponenteRepository>, @repository.getter('SolicitudComiteRepository') protected solicitudComiteRepositoryGetter: Getter<SolicitudComiteRepository>, @repository.getter('ComiteRepository') protected comiteRepositoryGetter: Getter<ComiteRepository>, @repository.getter('LineaInvestigacionRepository') protected lineaInvestigacionRepositoryGetter: Getter<LineaInvestigacionRepository>, @repository.getter('TipoSolicitudRepository') protected tipoSolicitudRepositoryGetter: Getter<TipoSolicitudRepository>, @repository.getter('ModalidadRepository') protected modalidadRepositoryGetter: Getter<ModalidadRepository>, @repository.getter('EstadoSolicitudRepository') protected estadoSolicitudRepositoryGetter: Getter<EstadoSolicitudRepository>,
+    @inject('datasources.mysql') dataSource: MysqlDataSource, @repository.getter('SolicitudProponenteRepository') protected solicitudProponenteRepositoryGetter: Getter<SolicitudProponenteRepository>, @repository.getter('ProponenteRepository') protected proponenteRepositoryGetter: Getter<ProponenteRepository>, @repository.getter('SolicitudComiteRepository') protected solicitudComiteRepositoryGetter: Getter<SolicitudComiteRepository>, @repository.getter('ComiteRepository') protected comiteRepositoryGetter: Getter<ComiteRepository>, @repository.getter('LineaInvestigacionRepository') protected lineaInvestigacionRepositoryGetter: Getter<LineaInvestigacionRepository>, @repository.getter('TipoSolicitudRepository') protected tipoSolicitudRepositoryGetter: Getter<TipoSolicitudRepository>, @repository.getter('ModalidadRepository') protected modalidadRepositoryGetter: Getter<ModalidadRepository>, @repository.getter('EstadoSolicitudRepository') protected estadoSolicitudRepositoryGetter: Getter<EstadoSolicitudRepository>, @repository.getter('InvitacionEvaluarRepository') protected invitacionEvaluarRepositoryGetter: Getter<InvitacionEvaluarRepository>,
   ) {
     super(Solicitud, dataSource);
+    this.invitacionesEvaluar = this.createHasManyRepositoryFactoryFor('invitacionesEvaluar', invitacionEvaluarRepositoryGetter,);
+    this.registerInclusionResolver('invitacionesEvaluar', this.invitacionesEvaluar.inclusionResolver);
     this.solicitud_pertenece_a_estado_solicitud = this.createBelongsToAccessorFor('solicitud_pertenece_a_estado_solicitud', estadoSolicitudRepositoryGetter,);
     this.registerInclusionResolver('solicitud_pertenece_a_estado_solicitud', this.solicitud_pertenece_a_estado_solicitud.inclusionResolver);
     this.solicitud_pertenece_a_modalidad = this.createBelongsToAccessorFor('solicitud_pertenece_a_modalidad', modalidadRepositoryGetter,);

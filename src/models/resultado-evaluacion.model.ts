@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {InvitacionEvaluar} from './invitacion-evaluar.model';
 
 @model()
 export class ResultadoEvaluacion extends Entity {
@@ -27,6 +28,8 @@ export class ResultadoEvaluacion extends Entity {
   })
   formato_diligenciado: string;
 
+  @belongsTo(() => InvitacionEvaluar, {name: 'resultado_evaluacion_pertenece_a_invitacion_evaluar'})
+  id_invitacion_evaluar: number;
 
   constructor(data?: Partial<ResultadoEvaluacion>) {
     super(data);
