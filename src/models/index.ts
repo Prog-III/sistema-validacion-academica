@@ -5,3 +5,6 @@ export * from './proponente.model';
 export * from './tipo-vinculacion.model';
 export * from './solicitud-proponente.model';
 export * from './solicitud.model';
+export * from './linea-investigacion.model';
+export * from './jurado.model';
+export * from './jurado-linea-investigacion.model';
