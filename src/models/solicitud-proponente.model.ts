@@ -9,6 +9,15 @@ export class SolicitudProponente extends Entity {
   })
   id?: number;
 
+  @property({
+    type: 'number',
+  })
+  id_solicitud?: number;
+
+  @property({
+    type: 'number',
+  })
+  id_proponente?: number;
 
   constructor(data?: Partial<SolicitudProponente>) {
     super(data);
