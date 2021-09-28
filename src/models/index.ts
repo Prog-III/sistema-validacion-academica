@@ -8,3 +8,6 @@ export * from './solicitud.model';
 export * from './linea-investigacion.model';
 export * from './jurado.model';
 export * from './jurado-linea-investigacion.model';
+export * from './recordatorio.model';
+export * from './resultado-evaluacion.model';
+export * from './invitacion-evaluar.model';
