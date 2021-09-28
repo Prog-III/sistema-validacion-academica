@@ -11,3 +11,8 @@ export * from './jurado-linea-investigacion.model';
 export * from './recordatorio.model';
 export * from './resultado-evaluacion.model';
 export * from './invitacion-evaluar.model';
+export * from './tipo-solicitud.model';
+export * from './estado-solicitud.model';
+export * from './modalidad.model';
+export * from './comite.model';
+export * from './solicitud-comite.model';
