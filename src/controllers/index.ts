@@ -21,3 +21,4 @@ export * from './resultado-evaluacion-invitacion-evaluar.controller';
 export * from './invitacion-evaluar-resultado-evaluacion.controller';
 export * from './recordatorio-invitacion-evaluar.controller';
 export * from './invitacion-evaluar-recordatorio.controller';
+export * from './jurado-linea-investigacion.controller';
