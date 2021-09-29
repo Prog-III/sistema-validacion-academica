@@ -34,3 +34,5 @@ export * from './proponente.controller';
 export * from './recordatorio.controller';
 export * from './resultado-evaluacion.controller';
 export * from './solicitud.controller';
+export * from './tipo-solicitud.controller';
+export * from './tipo-vinculacion.controller';
