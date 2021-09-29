@@ -30,3 +30,7 @@ export * from './invitacion-evaluar.controller';
 export * from './jurado.controller';
 export * from './linea-investigacion.controller';
 export * from './modalidad.controller';
+export * from './proponente.controller';
+export * from './recordatorio.controller';
+export * from './resultado-evaluacion.controller';
+export * from './solicitud.controller';
