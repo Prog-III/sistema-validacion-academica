@@ -26,3 +26,7 @@ export * from './comite.controller';
 export * from './departamento.controller';
 export * from './estado-solicitud.controller';
 export * from './facultad.controller';
+export * from './invitacion-evaluar.controller';
+export * from './jurado.controller';
+export * from './linea-investigacion.controller';
+export * from './modalidad.controller';
