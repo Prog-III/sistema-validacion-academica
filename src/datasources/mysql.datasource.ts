@@ -5,10 +5,10 @@ const config = {
   name: 'mysql',
   connector: 'mysql',
   url: '',
-  host: 'localhost',
+  host: 'validaciones-acad.mysql.database.azure.com',
   port: 3306,
-  user: 'root',
-  password: '',
+  user: 'prog_ucaldas',
+  password: 'uni_3784',
   database: 'sistema_validaciones_db'
 };
 
