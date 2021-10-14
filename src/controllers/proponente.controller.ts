@@ -1,50 +1,102 @@
+import {inject} from '@loopback/context';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
+  del, get,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, Request, requestBody,
   response,
+  RestBindings
 } from '@loopback/rest';
+import path from 'path';
+import {cloudFilesRoutes} from '../config/index.config';
 import {Proponente} from '../models';
-import {ProponenteRepository} from '../repositories';
+import {ProponenteRepository, TipoVinculacionRepository} from '../repositories';
+import {cloudinary} from '../services/cloudinary.service';
+
 
 export class ProponenteController {
   constructor(
     @repository(ProponenteRepository)
-    public proponenteRepository : ProponenteRepository,
-  ) {}
+    public proponenteRepository: ProponenteRepository,
+
+    @repository(TipoVinculacionRepository)
+    public tipoVinculacionRepository: TipoVinculacionRepository,
+    @inject(RestBindings.Http.REQUEST) private req: Request,
+  ) { }
 
   @post('/proponentes')
+  // @interceptor(verifyadminrole)
   @response(200, {
     description: 'Proponente model instance',
     content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
   })
-  async create(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Proponente, {
-            title: 'NewProponente',
-            exclude: ['id'],
-          }),
-        },
+  async create(): Promise<Proponente> {
+    const {
+      primer_nombre,
+      otros_nombres,
+      primer_apellido,
+      segundo_apellido,
+      documento,
+      fecha_nacimiento,
+      email,
+      celular,
+      id_tipo_vinculacion
+
+    } = this.req.body;
+
+    const {file} = this.req;
+
+    if (
+      !primer_nombre ||
+      !otros_nombres ||
+      !primer_apellido ||
+      !segundo_apellido ||
+      !documento ||
+      !fecha_nacimiento ||
+      !email ||
+      !celular ||
+      !file
+
+    )
+
+      throw new HttpErrors.BadRequest('Información incompleta');
+
+    if (!id_tipo_vinculacion || !(await this.tipoVinculacionRepository.findById(id_tipo_vinculacion)))
+      throw new HttpErrors.BadRequest('id_tipo_vinculacion Invalido');
+
+    const uploadedImage: cloudinary.UploadApiResponse = await cloudinary.v2.uploader.upload(
+      file.path,
+      {
+        public_id: `${cloudFilesRoutes.proponente}/${path.basename(
+          file.path,
+          path.extname(file.path),
+
+        )}` //VER ESTO
       },
-    })
-    proponente: Omit<Proponente, 'id'>,
-  ): Promise<Proponente> {
-    return this.proponenteRepository.create(proponente);
+    );
+
+    const image= uploadedImage.secure_url;
+    const image_public_id = uploadedImage.public_id;
+
+    return this.proponenteRepository.create({
+      primer_nombre,
+      otros_nombres,
+      primer_apellido,
+      segundo_apellido,
+      documento,
+      fecha_nacimiento,
+      email,
+      celular,
+      id_tipo_vinculacion,
+      image,
+      image_public_id
+    });
   }
 
   @get('/proponentes/count')

@@ -58,9 +58,15 @@ export class Proponente extends Entity {
 
   @property({
     type: 'string',
+  })
+  image?: string;
+
+  @property({
+    type: 'string',
     required: true,
   })
-  fotografia: string;
+  image_public_id: string;
+
 
   @belongsTo(() => TipoVinculacion, {name: 'tiene_un'})
   id_tipo_vinculacion: number;
