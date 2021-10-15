@@ -1,15 +1,16 @@
 import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
+import {microsoft_azure} from '../config/index.config';
 
-const config = {
-  name: 'mysql',
-  connector: 'mysql',
-  url: '',
-  host: 'validaciones-acad.mysql.database.azure.com',
-  port: 3306,
-  user: 'prog_ucaldas',
-  password: 'uni_3784',
-  database: 'sistema_validaciones_db'
+const config = { // convertirlo a variables de entorno
+  name: "mysql",
+  connector: "mysql",
+  url: "",
+  host: microsoft_azure.host,
+  port: microsoft_azure.port,
+  user: microsoft_azure.user,
+  password: microsoft_azure.password,
+  database: microsoft_azure.database
 };
 
 // Observe application's life cycle to disconnect the datasource when
