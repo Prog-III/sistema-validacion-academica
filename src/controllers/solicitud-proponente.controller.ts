@@ -1,11 +1,12 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
-  import {
+import {
   del,
   get,
   getModelSchemaRef,
@@ -13,18 +14,21 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
-Solicitud,
-SolicitudProponente,
-Proponente,
+  Proponente, Solicitud
 } from '../models';
+import {NotificacionCorreo} from '../models/notificacion-correo.model';
 import {SolicitudRepository} from '../repositories';
+import {NotificacionesService} from '../services';
 
+require('dotenv').config();
 export class SolicitudProponenteController {
   constructor(
     @repository(SolicitudRepository) protected solicitudRepository: SolicitudRepository,
+    @service(NotificacionesService)
+    public servicioNotificaciones: NotificacionesService
   ) { }
 
   @get('/solicituds/{id}/proponentes', {
@@ -67,7 +71,17 @@ export class SolicitudProponenteController {
       },
     }) proponente: Omit<Proponente, 'id'>,
   ): Promise<Proponente> {
-    return this.solicitudRepository.proponentes(id).create(proponente);
+    let ProponenteCreado = await this.solicitudRepository.proponentes(id).create(proponente);
+    if (ProponenteCreado) {
+      let datos = new NotificacionCorreo();
+      datos.destinatario = proponente.email;
+      datos.asunto = process.env.asuntoCreacionSolicitud;
+      datos.saludo = `${process.env.saludo} ${proponente.primer_nombre}`
+      let solicitudregistrada = await this.solicitudRepository.findById(id)
+      datos.mensaje = `${process.env.mensajeCreacionSolicitud} ${solicitudregistrada.fecha} ${solicitudregistrada.nombre_trabajo}${solicitudregistrada.id_modalidad} ${solicitudregistrada.comites}${solicitudregistrada.id_linea_investigacion}${solicitudregistrada.archivo}${solicitudregistrada.descripcion}`
+      this.servicioNotificaciones.EnviarCorreo(datos)
+    }
+    return ProponenteCreado
   }
 
   @patch('/solicituds/{id}/proponentes', {
