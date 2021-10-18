@@ -1,4 +1,5 @@
 import {inject} from '@loopback/context';
+import {intercept} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -15,6 +16,7 @@ import {
 } from '@loopback/rest';
 import path from 'path';
 import {cloudFilesRoutes} from '../config/index.config';
+import {filesInterceptor} from '../middleware/multer';
 import {Proponente} from '../models';
 import {ProponenteRepository, TipoVinculacionRepository} from '../repositories';
 import {cloudinary} from '../services/cloudinary.service';
@@ -31,7 +33,7 @@ export class ProponenteController {
   ) { }
 
   @post('/proponentes')
-  // @interceptor(verifyadminrole)
+  @intercept(filesInterceptor)
   @response(200, {
     description: 'Proponente model instance',
     content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
@@ -54,9 +56,9 @@ export class ProponenteController {
 
     if (
       !primer_nombre ||
-      !otros_nombres ||
+
       !primer_apellido ||
-      !segundo_apellido ||
+
       !documento ||
       !fecha_nacimiento ||
       !email ||
@@ -81,7 +83,8 @@ export class ProponenteController {
       },
     );
 
-    const image= uploadedImage.secure_url;
+    const image = uploadedImage.secure_url;
+    console.log(image);
     const image_public_id = uploadedImage.public_id;
 
     return this.proponenteRepository.create({
