@@ -1,4 +1,4 @@
-import {service} from '@loopback/core';
+import {inject, intercept, service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -11,22 +11,29 @@ import {
   get,
   getModelSchemaRef,
   getWhereSchemaFor,
+  HttpErrors,
   param,
   patch,
-  post,
-  requestBody
+  post, Request, requestBody, response, RestBindings
 } from '@loopback/rest';
+import path from 'path';
+import {cloudFilesRoutes} from '../config/index.config';
+import {filesInterceptor} from '../middleware/multer';
 import {
   Proponente, Solicitud
 } from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
-import {SolicitudRepository} from '../repositories';
+import {SolicitudRepository, TipoVinculacionRepository} from '../repositories';
 import {NotificacionesService} from '../services';
+import {cloudinary} from '../services/cloudinary.service';
 
 require('dotenv').config();
 export class SolicitudProponenteController {
   constructor(
     @repository(SolicitudRepository) protected solicitudRepository: SolicitudRepository,
+    @inject(RestBindings.Http.REQUEST) private req: Request,
+    @repository(TipoVinculacionRepository)
+    public tipoVinculacionRepository: TipoVinculacionRepository,
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService
   ) { }
@@ -50,38 +57,84 @@ export class SolicitudProponenteController {
     return this.solicitudRepository.proponentes(id).find(filter);
   }
 
-  @post('/solicituds/{id}/proponentes', {
-    responses: {
-      '200': {
-        description: 'create a Proponente model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
-      },
-    },
+
+  @post('/solicituds/{id}/proponentes')
+  @intercept(filesInterceptor)
+  @response(200, {
+    description: 'Proponente model instance',
+    content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
   })
   async create(
-    @param.path.number('id') id: typeof Solicitud.prototype.id,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Proponente, {
-            title: 'NewProponenteInSolicitud',
-            exclude: ['id'],
-          }),
-        },
-      },
-    }) proponente: Omit<Proponente, 'id'>,
+    @param.path.number('id') id: typeof Solicitud.prototype.id
   ): Promise<Proponente> {
-    let ProponenteCreado = await this.solicitudRepository.proponentes(id).create(proponente);
+    const {
+      primer_nombre,
+      otros_nombres,
+      primer_apellido,
+      segundo_apellido,
+      documento,
+      fecha_nacimiento,
+      email,
+      celular,
+      id_tipo_vinculacion
+
+    } = this.req.body;
+
+    const {file} = this.req;
+
+    if (
+      !primer_nombre ||
+      !otros_nombres ||
+      !primer_apellido ||
+      !segundo_apellido ||
+      !documento ||
+      !fecha_nacimiento ||
+      !email ||
+      !celular ||
+      !file
+
+    ) throw new HttpErrors.BadRequest('Información incompleta');
+
+    if (!id_tipo_vinculacion || !(await this.tipoVinculacionRepository.findById(id_tipo_vinculacion)))
+      throw new HttpErrors.BadRequest('id_tipo_vinculacion Invalido');
+
+    const uploadedImage: cloudinary.UploadApiResponse = await cloudinary.v2.uploader.upload(
+      file.path,
+      {
+        public_id: `${cloudFilesRoutes.proponente}/${path.basename(
+          file.path,
+          path.extname(file.path),
+
+        )}` //VER ESTO
+      },
+    );
+    const image = uploadedImage.secure_url;
+    const image_public_id = uploadedImage.public_id;
+
+    let ProponenteCreado = await this.solicitudRepository.proponentes(id).create({
+      primer_nombre,
+      otros_nombres,
+      primer_apellido,
+      segundo_apellido,
+      documento,
+      fecha_nacimiento,
+      email,
+      celular,
+      id_tipo_vinculacion,
+      image,
+      image_public_id
+    })
+
     if (ProponenteCreado) {
       let datos = new NotificacionCorreo();
-      datos.destinatario = proponente.email;
+      datos.destinatario = ProponenteCreado.email;
       datos.asunto = process.env.asuntoCreacionSolicitud;
-      datos.saludo = `${process.env.saludo} ${proponente.primer_nombre}`
+      datos.saludo = `${process.env.saludo} ${ProponenteCreado.primer_nombre}`
       let solicitudregistrada = await this.solicitudRepository.findById(id)
       datos.mensaje = `${process.env.mensajeCreacionSolicitud} ${solicitudregistrada.fecha} ${solicitudregistrada.nombre_trabajo}${solicitudregistrada.id_modalidad} ${solicitudregistrada.comites}${solicitudregistrada.id_linea_investigacion}${solicitudregistrada.archivo}${solicitudregistrada.descripcion}`
-      this.servicioNotificaciones.EnviarCorreo(datos)
+      this.servicioNotificaciones.EnviarCorreo(datos);
     }
-    return ProponenteCreado
+    return ProponenteCreado;
   }
 
   @patch('/solicituds/{id}/proponentes', {
