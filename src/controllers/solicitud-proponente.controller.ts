@@ -18,12 +18,13 @@ import {
 } from '@loopback/rest';
 import path from 'path';
 import {cloudFilesRoutes} from '../config/index.config';
+import {Configuracion} from '../llaves/configuracion';
 import {filesInterceptor} from '../middleware/multer';
 import {
   Proponente, Solicitud
 } from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
-import {SolicitudRepository, TipoVinculacionRepository} from '../repositories';
+import {LineaInvestigacionRepository, ModalidadRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 import {cloudinary} from '../services/cloudinary.service';
 
@@ -34,6 +35,10 @@ export class SolicitudProponenteController {
     @inject(RestBindings.Http.REQUEST) private req: Request,
     @repository(TipoVinculacionRepository)
     public tipoVinculacionRepository: TipoVinculacionRepository,
+    @repository(ModalidadRepository)
+    public modalidadRepository: ModalidadRepository,
+    @repository(LineaInvestigacionRepository)
+    public lineainvestigacionRepository: LineaInvestigacionRepository,
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService
   ) { }
@@ -82,11 +87,12 @@ export class SolicitudProponenteController {
 
     const {file} = this.req;
 
+    console.log(this.req.body);
+
+
     if (
       !primer_nombre ||
-      !otros_nombres ||
       !primer_apellido ||
-      !segundo_apellido ||
       !documento ||
       !fecha_nacimiento ||
       !email ||
@@ -128,10 +134,12 @@ export class SolicitudProponenteController {
     if (ProponenteCreado) {
       let datos = new NotificacionCorreo();
       datos.destinatario = ProponenteCreado.email;
-      datos.asunto = process.env.asuntoCreacionSolicitud;
-      datos.saludo = `${process.env.saludo} ${ProponenteCreado.primer_nombre}`
+      datos.asunto = Configuracion.asuntoCreacionSolicitud;
+      datos.saludo = `${Configuracion.saludo} <strong>${ProponenteCreado.primer_nombre}</strong>`
       let solicitudregistrada = await this.solicitudRepository.findById(id)
-      datos.mensaje = `${process.env.mensajeCreacionSolicitud} ${solicitudregistrada.fecha} ${solicitudregistrada.nombre_trabajo}${solicitudregistrada.id_modalidad} ${solicitudregistrada.comites}${solicitudregistrada.id_linea_investigacion}${solicitudregistrada.archivo}${solicitudregistrada.descripcion}`
+      let modalidadsolicitud = await this.modalidadRepository.findById(solicitudregistrada.id_modalidad)
+      let lineasolicitud = await this.lineainvestigacionRepository.findById(solicitudregistrada.id_linea_investigacion)
+      datos.mensaje = `${Configuracion.mensajeCreacionSolicitud} <br /> <strong> Fecha de la solicitud: </strong>${solicitudregistrada.fecha} <br /> <strong> Nombre del trabajo:</strong>${solicitudregistrada.nombre_trabajo} <br /> <strong>Modalidad:</strong> ${modalidadsolicitud.nombre} <br /> <strong>Comite:</strong> ${solicitudregistrada.comites} <br /> <strong>Linea de Investigación:</strong> ${lineasolicitud.nombre} <br /><strong> Archivo:</strong> ${solicitudregistrada.archivo} <br /><strong> Descripción del trabajo:</strong> ${solicitudregistrada.descripcion}`
       this.servicioNotificaciones.EnviarCorreo(datos);
     }
     return ProponenteCreado;
