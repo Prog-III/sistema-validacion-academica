@@ -131,6 +131,8 @@ export class SolicitudProponenteController {
       image_public_id
     })
 
+    let hash = process.env.hasNotification;
+
     if (ProponenteCreado) {
       let datos = new NotificacionCorreo();
       datos.destinatario = ProponenteCreado.email;
@@ -139,7 +141,16 @@ export class SolicitudProponenteController {
       let solicitudregistrada = await this.solicitudRepository.findById(id)
       let modalidadsolicitud = await this.modalidadRepository.findById(solicitudregistrada.id_modalidad)
       let lineasolicitud = await this.lineainvestigacionRepository.findById(solicitudregistrada.id_linea_investigacion)
-      datos.mensaje = `${Configuracion.mensajeCreacionSolicitud} <br /> <strong> Fecha de la solicitud: </strong>${solicitudregistrada.fecha} <br /> <strong> Nombre del trabajo:</strong>${solicitudregistrada.nombre_trabajo} <br /> <strong>Modalidad:</strong> ${modalidadsolicitud.nombre} <br /> <strong>Comite:</strong> ${solicitudregistrada.comites} <br /> <strong>Linea de Investigación:</strong> ${lineasolicitud.nombre} <br /><strong> Archivo:</strong> ${solicitudregistrada.archivo} <br /><strong> Descripción del trabajo:</strong> ${solicitudregistrada.descripcion}`
+      datos.mensaje = `${Configuracion.mensajeCreacionSolicitud} <br />
+      <strong> Fecha de la solicitud: </strong>
+      ${solicitudregistrada.fecha} <br />
+      <strong> Nombre del trabajo:</strong>
+      ${solicitudregistrada.nombre_trabajo} <br />
+      <strong>Modalidad:</strong> ${modalidadsolicitud.nombre}
+      <br /> <strong>Comite:</strong> ${solicitudregistrada.comites} <br />
+      <strong>Linea de Investigación:</strong> ${lineasolicitud.nombre} <br />
+      <strong> Archivo:</strong> ${solicitudregistrada.archivo} <br />
+      <strong> Descripción del trabajo:</strong> ${solicitudregistrada.descripcion}`
       this.servicioNotificaciones.EnviarCorreo(datos);
     }
     return ProponenteCreado;

@@ -19,6 +19,7 @@ export class JuradoLineaInvestigacion extends Entity {
   })
   id_linea_investigacion?: number;
 
+
   constructor(data?: Partial<JuradoLineaInvestigacion>) {
     super(data);
   }
