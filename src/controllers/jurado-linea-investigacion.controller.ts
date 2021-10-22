@@ -7,7 +7,7 @@ import {
   getModelSchemaRef, param, post, requestBody, response
 } from '@loopback/rest';
 import {
-  ArregloLineasInvestigacion,
+  ArregloGeneral,
   Jurado, JuradoLineaInvestigacion, LineaInvestigacion
 } from '../models';
 import {JuradoLineaInvestigacionRepository, JuradoRepository} from '../repositories';
@@ -73,14 +73,14 @@ export class JuradoLineaInvestigacionController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(ArregloLineasInvestigacion, {}),
+          schema: getModelSchemaRef(ArregloGeneral, {}),
         },
       },
-    }) datos: ArregloLineasInvestigacion,
+    }) datos: ArregloGeneral,
     @param.path.number('id') id_jurado: typeof Jurado.prototype.id
   ): Promise<Boolean> {
-    if (datos.lineas_investigacion.length > 0) {
-      datos.lineas_investigacion.forEach(async (id_linea: number) => {
+    if (datos.array_general.length > 0) {
+      datos.array_general.forEach(async (id_linea: number) => {
         let existe = await this.juradoLineaInvestigacionRepository.findOne({
           where: {
             id_jurado: id_jurado,

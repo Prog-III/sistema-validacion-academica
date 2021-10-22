@@ -3,7 +3,7 @@ import {
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,11 +13,10 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
-  Facultad,
-  Departamento,
+  Departamento, Facultad
 } from '../models';
 import {FacultadRepository} from '../repositories';
 
@@ -60,8 +59,7 @@ export class FacultadDepartamentoController {
         'application/json': {
           schema: getModelSchemaRef(Departamento, {
             title: 'NewDepartamentoInFacultad',
-            exclude: ['id'],
-            optional: ['id_departamento']
+            exclude: ['id']
           }),
         },
       },
