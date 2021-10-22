@@ -7,6 +7,7 @@ export namespace Configuracion {
   export const urlMensajeTexto = "http://localhost:5000/sms"
   export const asuntoCambioClave = "Cambio de contraseña"
   export const asuntoCreacionUsuario = "Registro en el sistema"
+  export const asuntoInvitacionJurado = "Invitacion para ser jurado"
   export const saludo = "Hola"
   export const destinoArg = "destino"
   export const asuntoArg = "asunto"
@@ -24,4 +25,7 @@ export namespace Configuracion {
   export const archivoArg = "<br /> <strong> Archivo:</strong>"
   export const descripcionArg = "<br /> <strong> Descripción del trabajo:</strong>"
 
+  export const mensajeInvitacionJurado = "Ha sido invitado por parte del sistema de validación académica para ser jurado: "
+
+  export const botonesInvitacionJurado = `<br /> <a href="facebook.com">Aceptar</a> <a href="google.com">Rechazar</a>`
 }

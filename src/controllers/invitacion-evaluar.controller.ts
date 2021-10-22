@@ -1,30 +1,34 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
+import {Configuracion} from '../llaves/configuracion';
 import {InvitacionEvaluar} from '../models';
-import {InvitacionEvaluarRepository} from '../repositories';
+import {NotificacionCorreo} from '../models/notificacion-correo.model';
+import {InvitacionEvaluarRepository, JuradoRepository, SolicitudRepository} from '../repositories';
+import {NotificacionesService} from '../services';
 
 export class InvitacionEvaluarController {
   constructor(
     @repository(InvitacionEvaluarRepository)
-    public invitacionEvaluarRepository : InvitacionEvaluarRepository,
-  ) {}
+    public invitacionEvaluarRepository: InvitacionEvaluarRepository,
+    @repository(JuradoRepository)
+    public juradoRepository: JuradoRepository,
+    @repository(SolicitudRepository)
+    public solicitudRepository: SolicitudRepository,
+    @service(NotificacionesService)
+    public servicioNotificaciones: NotificacionesService
+  ) { }
 
   @post('/invitaciones-evaluar')
   @response(200, {
@@ -44,7 +48,22 @@ export class InvitacionEvaluarController {
     })
     invitacionEvaluar: Omit<InvitacionEvaluar, 'id'>,
   ): Promise<InvitacionEvaluar> {
-    return this.invitacionEvaluarRepository.create(invitacionEvaluar);
+    let InvitacionRegistrada = await this.invitacionEvaluarRepository.create(invitacionEvaluar);
+    if (InvitacionRegistrada) {
+      let datosNotificacion = new NotificacionCorreo();
+
+      let juradoregistrado = await this.juradoRepository.findById(InvitacionRegistrada.id_jurado)
+      let solicitudregistrado = await this.solicitudRepository.findById(InvitacionRegistrada.id_solicitud)
+
+      datosNotificacion.destinatario = juradoregistrado.email;
+      datosNotificacion.asunto = Configuracion.asuntoInvitacionJurado;
+      datosNotificacion.saludo = `${Configuracion.saludo} <strong>${juradoregistrado.nombre}</strong>`
+      datosNotificacion.mensaje = `${Configuracion.mensajeInvitacionJurado}
+      ${Configuracion.nombretrabajoArg} ${solicitudregistrado.nombre_trabajo}
+      ${Configuracion.botonesInvitacionJurado}`
+      this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
+    }
+    return InvitacionRegistrada
   }
 
   @get('/invitaciones-evaluar/count')
