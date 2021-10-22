@@ -8,11 +8,12 @@ import {
   get,
   getModelSchemaRef, param, post, Request, requestBody, response, RestBindings
 } from '@loopback/rest';
+import {Configuracion} from '../llaves/configuracion';
 import {
-  ArregloGeneral,
-  Proponente, Solicitud, SolicitudProponente
+  ArregloGeneral, Proponente, Solicitud, SolicitudProponente
 } from '../models';
-import {LineaInvestigacionRepository, ModalidadRepository, SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
+import {NotificacionCorreo} from '../models/notificacion-correo.model';
+import {LineaInvestigacionRepository, ModalidadRepository, ProponenteRepository, SolicitudComiteRepository, SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 
 require('dotenv').config();
@@ -28,6 +29,10 @@ export class SolicitudProponenteController {
     public lineainvestigacionRepository: LineaInvestigacionRepository,
     @repository(SolicitudProponenteRepository)
     public solicitudproponenteRepository: SolicitudProponenteRepository,
+    @repository(SolicitudComiteRepository)
+    public solicitudcomiteRepository: SolicitudComiteRepository,
+    @repository(ProponenteRepository)
+    public proponenteRepository: ProponenteRepository,
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService
   ) { }
@@ -73,6 +78,34 @@ export class SolicitudProponenteController {
     }) datos: Omit<SolicitudProponente, 'id'>,
   ): Promise<SolicitudProponente | null> {
     let registro = await this.solicitudproponenteRepository.create(datos);
+    if (registro) {
+      let datosNotificacion = new NotificacionCorreo();
+
+      let proponenteregistrado = await this.proponenteRepository.findById(registro.id_proponente)
+      let solicitudregistrada = await this.solicitudRepository.findById(registro.id_solicitud)
+
+      let modalidadsolicitud = await this.modalidadRepository.findById(solicitudregistrada.id_modalidad)
+      let lineasolicitud = await this.lineainvestigacionRepository.findById(solicitudregistrada.id_linea_investigacion)
+      let solicitudcomites = await this.solicitudRepository.comites(solicitudregistrada.id).find()
+
+      let comitesString = ""
+      solicitudcomites.forEach(comite => {
+        comitesString += `${comite.nombre}. `
+      });
+
+      datosNotificacion.destinatario = proponenteregistrado.email;
+      datosNotificacion.asunto = Configuracion.asuntoCreacionSolicitud;
+      datosNotificacion.saludo = `${Configuracion.saludo} <strong>${proponenteregistrado.primer_nombre}</strong>`
+      datosNotificacion.mensaje = `${Configuracion.mensajeCreacionSolicitud}
+      ${Configuracion.fechasolicitudArg} ${solicitudregistrada.fecha}
+      ${Configuracion.nombretrabajoArg} ${solicitudregistrada.nombre_trabajo}
+      ${Configuracion.modalidadArg} ${modalidadsolicitud.nombre}
+      ${Configuracion.comiteArg} ${comitesString}
+      ${Configuracion.lineaArg} ${lineasolicitud.nombre}
+      ${Configuracion.archivoArg} ${solicitudregistrada.archivo}
+      ${Configuracion.descripcionArg} ${solicitudregistrada.descripcion}`
+      this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
+    }
     return registro;
   }
 

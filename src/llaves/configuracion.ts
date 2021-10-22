@@ -14,6 +14,14 @@ export namespace Configuracion {
   export const mensajeArg = "mensaje"
   export const hashArg = "hash"
 
-  export const mensajeCreacionSolicitud = "Se ha registrado correctamente su solicitud en el sistema de validación: "
+  export const mensajeCreacionSolicitud = "Se ha registrado correctamente su solicitud en el sistema de validación: <br />"
   export const asuntoCreacionSolicitud = "Registro de solicitud en el sistema"
+  export const fechasolicitudArg = "<strong> Fecha de la solicitud: </strong>"
+  export const nombretrabajoArg = "<br /> <strong> Nombre del trabajo:</strong>"
+  export const modalidadArg = " <br /> <strong>Modalidad:</strong>"
+  export const comiteArg = "<br /> <strong>Comite:</strong>"
+  export const lineaArg = "<br /> <strong>Linea de Investigación:</strong>"
+  export const archivoArg = "<br /> <strong> Archivo:</strong>"
+  export const descripcionArg = "<br /> <strong> Descripción del trabajo:</strong>"
+
 }
