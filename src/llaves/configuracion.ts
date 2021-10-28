@@ -27,5 +27,5 @@ export namespace Configuracion {
 
   export const mensajeInvitacionJurado = "Ha sido invitado por parte del sistema de validación académica para ser jurado: "
 
-  export const botonesInvitacionJurado = `<br /> <a href="facebook.com">Aceptar</a> <a href="google.com">Rechazar</a>`
+  export const botonesInvitacionJurado = `<br /> <a href="facebook.com">Aceptar</a>`
 }

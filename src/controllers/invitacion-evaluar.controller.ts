@@ -48,6 +48,8 @@ export class InvitacionEvaluarController {
     })
     invitacionEvaluar: Omit<InvitacionEvaluar, 'id'>,
   ): Promise<InvitacionEvaluar> {
+
+
     let InvitacionRegistrada = await this.invitacionEvaluarRepository.create(invitacionEvaluar);
     if (InvitacionRegistrada) {
       let datosNotificacion = new NotificacionCorreo();
@@ -58,9 +60,11 @@ export class InvitacionEvaluarController {
       datosNotificacion.destinatario = juradoregistrado.email;
       datosNotificacion.asunto = Configuracion.asuntoInvitacionJurado;
       datosNotificacion.saludo = `${Configuracion.saludo} <strong>${juradoregistrado.nombre}</strong>`
-      datosNotificacion.mensaje = `${Configuracion.mensajeInvitacionJurado}
-      ${Configuracion.nombretrabajoArg} ${solicitudregistrado.nombre_trabajo}
-      ${Configuracion.botonesInvitacionJurado}`
+      datosNotificacion.mensaje = `
+        ${Configuracion.mensajeInvitacionJurado}
+        ${Configuracion.nombretrabajoArg} ${solicitudregistrado.nombre_trabajo}
+        ${Configuracion.botonesInvitacionJurado}
+      `
       this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
     }
     return InvitacionRegistrada
