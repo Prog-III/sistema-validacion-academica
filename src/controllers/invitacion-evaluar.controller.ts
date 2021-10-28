@@ -18,6 +18,8 @@ import {NotificacionCorreo} from '../models/notificacion-correo.model';
 import {InvitacionEvaluarRepository, JuradoRepository, SolicitudRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 
+const createHash = require('hash-generator');
+
 export class InvitacionEvaluarController {
   constructor(
     @repository(InvitacionEvaluarRepository)
@@ -48,7 +50,8 @@ export class InvitacionEvaluarController {
     })
     invitacionEvaluar: Omit<InvitacionEvaluar, 'id'>,
   ): Promise<InvitacionEvaluar> {
-
+    let hash = createHash(30);
+    invitacionEvaluar.hash = hash;
 
     let InvitacionRegistrada = await this.invitacionEvaluarRepository.create(invitacionEvaluar);
     if (InvitacionRegistrada) {
@@ -63,7 +66,7 @@ export class InvitacionEvaluarController {
       datosNotificacion.mensaje = `
         ${Configuracion.mensajeInvitacionJurado}
         ${Configuracion.nombretrabajoArg} ${solicitudregistrado.nombre_trabajo}
-        ${Configuracion.botonesInvitacionJurado}
+        <br /> <a href="http://localhost:4200/responder-invitacion-evaluar?hash=${hash}">Responder a invitación</a>
       `
       this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
     }
