@@ -40,7 +40,7 @@ export class NotificacionesService {
     const correosNotificacion = await this.correoNotificacionRepository.find()
 
     correosNotificacion.forEach(correoNotificacion => {
-      const url = `${Configuracion.urlCorreo}?${Configuracion.destinoArg}=${correoNotificacion.correo}&${Configuracion.asuntoArg}=${asunto}&${Configuracion.saludoArg}=${saludo}&${Configuracion.mensajeArg}=${mensaje}&${Configuracion.hashArg}=${Configuracion.hasNotificacion}`
+      const url = `${Configuracion.urlCorreo}?${Configuracion.destinoArg}=${correoNotificacion.correo}&${Configuracion.asuntoArg}=${asunto}&${Configuracion.saludoArg}=${saludo + ' ' + correoNotificacion.nombre}&${Configuracion.mensajeArg}=${mensaje}&${Configuracion.hashArg}=${Configuracion.hasNotificacion}`
       fetch(url)
         .then((res: any) => {
           console.log(res.text())

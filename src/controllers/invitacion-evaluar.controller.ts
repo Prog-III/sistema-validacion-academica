@@ -9,7 +9,7 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
 import {Configuracion} from '../llaves/configuracion';
@@ -153,6 +153,59 @@ export class InvitacionEvaluarController {
     invitacionEvaluar: InvitacionEvaluar,
   ): Promise<void> {
     await this.invitacionEvaluarRepository.updateById(id, invitacionEvaluar);
+  }
+
+  @patch('invitaciones-evaluar/{hash}')
+  @response(204, {
+    description: 'Actualizar estado de la invitacion a evaluar',
+  })
+  async updatebyHash(
+    @param.path.string('hash') parametroHash: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(InvitacionEvaluar, {partial: true}),
+        },
+      },
+    })
+    invitacionEvaluar: InvitacionEvaluar,
+  ): Promise<void> {
+    const invitacionActual = await this.invitacionEvaluarRepository.findOne({
+      where: {hash: parametroHash}
+    });
+
+    if (invitacionActual) {
+      const estadoInvitacion = invitacionActual.estado_invitacion;
+
+      if (estadoInvitacion === 0) {
+        const estadoInvitacionNueva = invitacionEvaluar.estado_invitacion;
+        const juradoInvitado = await this.juradoRepository.findById(invitacionEvaluar.id_jurado);
+        const solicitud = await this.solicitudRepository.findById(invitacionEvaluar.id_solicitud);
+
+        const asunto = 'Respuesta jurado';
+        const saludo = `${Configuracion.saludo}`;
+
+        if (estadoInvitacionNueva === 1) {
+          return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionEvaluar)
+            .then(() => {
+              const mensaje = `El jurado ${juradoInvitado.nombre} ha aceptado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
+
+              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+            })
+        } else if (estadoInvitacionNueva === 2) {
+          return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionEvaluar)
+            .then(() => {
+              const mensaje = `El jurado ${juradoInvitado.nombre} ha rechazado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
+
+              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+            })
+        }
+      }
+
+      throw new HttpErrors[400]("La invitacion ya ha sido respondida");
+    }
+
+    throw new HttpErrors[404]("Invitacion a evaluar no encontrada");
   }
 
   @put('/invitaciones-evaluar/{id}')
