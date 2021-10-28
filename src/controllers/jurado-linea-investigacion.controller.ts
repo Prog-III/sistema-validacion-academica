@@ -99,6 +99,44 @@ export class JuradoLineaInvestigacionController {
     return false;
   }
 
+  @post('/asociar-linea-investigacion-jurados/{id}', {
+    responses: {
+      '200': {
+        description: 'create a instance of jurados with a linea investifacion',
+        content: {'application/json': {schema: getModelSchemaRef(JuradoLineaInvestigacion)}},
+      },
+    },
+  })
+  async createRelations2(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ArregloGeneral, {}),
+        },
+      },
+    }) datos: ArregloGeneral,
+    @param.path.number('id') id_linea: typeof LineaInvestigacion.prototype.id
+  ): Promise<Boolean> {
+    if (datos.array_general.length > 0) {
+      datos.array_general.forEach(async (id_jurado: number) => {
+        let existe = await this.juradoLineaInvestigacionRepository.findOne({
+          where: {
+            id_jurado: id_jurado,
+            id_linea_investigacion: id_linea
+          }
+        });
+        if (!existe) {
+          this.juradoLineaInvestigacionRepository.create({
+            id_jurado: id_jurado,
+            id_linea_investigacion: id_linea
+          });
+        }
+      });
+      return true;
+    }
+    return false;
+  }
+
 
   @del('/jurados/{id_jurado}/{id_linea}')
   @response(204, {

@@ -36,3 +36,4 @@ export * from './resultado-evaluacion.controller';
 export * from './solicitud.controller';
 export * from './tipo-solicitud.controller';
 export * from './tipo-vinculacion.controller';
+export * from './correo-notificacion.controller';
