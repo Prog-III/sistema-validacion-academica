@@ -25,16 +25,15 @@ export class InvitacionEvaluar extends Entity {
   fecha_respuesta?: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  estado_invitacion: string;
+  estado_invitacion: number;
 
   @property({
-    type: 'string',
-    required: true
+    type: 'string'
   })
-  hash: string;
+  hash?: string;
 
   @property({
     type: 'string',
