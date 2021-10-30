@@ -196,6 +196,7 @@ export class InvitacionEvaluarController {
         if (nuevoEstadoInvitacion === 1) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
             .then(() => {
+
               const mensaje = `El jurado ${juradoInvitado.nombre} ha aceptado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
 
               this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)

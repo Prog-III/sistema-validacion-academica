@@ -19,3 +19,4 @@ export * from './tipo-solicitud.model';
 export * from './tipo-vinculacion.model';
 
 export * from './correo-notificacion.model';
+export * from './usuario.model';
