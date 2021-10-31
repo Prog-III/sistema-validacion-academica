@@ -1,30 +1,37 @@
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
+import {Configuracion} from '../llaves/configuracion';
 import {ResultadoEvaluacion} from '../models';
-import {ResultadoEvaluacionRepository} from '../repositories';
+import {InvitacionEvaluarRepository, ResultadoEvaluacionRepository} from '../repositories';
+import {JuradoRepository} from '../repositories/jurado.repository';
+import {SolicitudRepository} from '../repositories/solicitud.repository';
+import {NotificacionesService} from '../services/notificaciones.service';
 
 export class ResultadoEvaluacionController {
   constructor(
     @repository(ResultadoEvaluacionRepository)
-    public resultadoEvaluacionRepository : ResultadoEvaluacionRepository,
-  ) {}
+    public resultadoEvaluacionRepository: ResultadoEvaluacionRepository,
+    @repository(InvitacionEvaluarRepository)
+    public invitacionEvaluarRepository: InvitacionEvaluarRepository,
+    @repository(JuradoRepository)
+    public juradoRepository: JuradoRepository,
+    @repository(SolicitudRepository)
+    public solicitudRepository: SolicitudRepository,
+    @service(NotificacionesService)
+    public servicioNotificaciones: NotificacionesService
+  ) { }
 
   @post('/resultados-evaluaciones')
   @response(200, {
@@ -44,7 +51,24 @@ export class ResultadoEvaluacionController {
     })
     resultadoEvaluacion: Omit<ResultadoEvaluacion, 'id'>,
   ): Promise<ResultadoEvaluacion> {
-    return this.resultadoEvaluacionRepository.create(resultadoEvaluacion);
+    let resultadoEvaluacionCreado = await this.resultadoEvaluacionRepository.create(resultadoEvaluacion);
+
+    if (resultadoEvaluacionCreado) {
+      let invitacionEvaluar = await this.invitacionEvaluarRepository.findById(resultadoEvaluacionCreado.id_invitacion_evaluar);
+      let jurado = await this.juradoRepository.findById(invitacionEvaluar.id_jurado);
+      let solicitud = await this.solicitudRepository.findById(invitacionEvaluar.id_solicitud);
+
+      let asunto = 'Evaluación jurado';
+      let saludo = Configuracion.saludo;
+
+      let mensaje = `
+        El jurado ${jurado.nombre} ha evaluado el trabajo: '${solicitud.nombre_trabajo}'
+        con las siguientes consideraciones: ${resultadoEvaluacionCreado.descripcion}`;
+
+      this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+    }
+
+    return resultadoEvaluacionCreado;
   }
 
   @get('/resultados-evaluaciones/count')
