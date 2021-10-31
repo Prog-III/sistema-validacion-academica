@@ -13,7 +13,7 @@ import {
   ArregloGeneral, Proponente, Solicitud, SolicitudProponente
 } from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
-import {LineaInvestigacionRepository, ModalidadRepository, ProponenteRepository, SolicitudComiteRepository, EstadoSolicitudRepository ,SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
+import {EstadoSolicitudRepository, LineaInvestigacionRepository, ModalidadRepository, ProponenteRepository, SolicitudComiteRepository, SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 
 require('dotenv').config();
@@ -81,6 +81,9 @@ export class SolicitudProponenteController {
   ): Promise<SolicitudProponente | null> {
 
     let registro = await this.solicitudproponenteRepository.create(datos);
+
+
+
     if (registro) {
       let datosNotificacion = new NotificacionCorreo();
 
@@ -99,22 +102,34 @@ export class SolicitudProponenteController {
       datosNotificacion.destinatario = proponenteregistrado.email;
       datosNotificacion.asunto = Configuracion.asuntoCreacionSolicitud;
       datosNotificacion.saludo = `${Configuracion.saludo} <strong>${proponenteregistrado.primer_nombre}</strong>`
-      datosNotificacion.mensaje = `${Configuracion.mensajeCreacionSolicitud}
-      ${Configuracion.fechasolicitudArg} ${solicitudregistrada.fecha}
-      ${Configuracion.nombretrabajoArg} ${solicitudregistrada.nombre_trabajo}
-      ${Configuracion.modalidadArg} ${modalidadsolicitud.nombre}
-      ${Configuracion.comiteArg} ${comitesString}
-      ${Configuracion.lineaArg} ${lineasolicitud.nombre}
-      ${Configuracion.archivoArg} ${solicitudregistrada.archivo}
-      ${Configuracion.descripcionArg} ${solicitudregistrada.descripcion}`
 
-      if(solicitudregistrada.coincidencias){
-        let estadoActualSolicitud = await this.estadoSolicitudRepository.findById(solicitudregistrada.id_estado);
-        datosNotificacion.mensaje = datosNotificacion.mensaje + `Ya existe un trabajo similar al suyo y el estado asignado para su solicitud es: ${(estadoActualSolicitud.nombre)}`;
+
+      let solicitudProponenteAntiguo = await this.solicitudproponenteRepository.findOne({
+        where: {
+          id_solicitud: registro.id_solicitud
+        }
+      });
+
+      if (solicitudProponenteAntiguo) {
+        let solicitudAntigua = await this.solicitudRepository.findById(solicitudProponenteAntiguo.id_solicitud);
+        let estadoSolicitud = await this.estadoSolicitudRepository.findById(solicitudAntigua.id_estado);
+
+        datosNotificacion.mensaje = `Su solicitud ya habia sido registrada anteriormente por otro proponente y
+          actualmente está en estado: ${estadoSolicitud.nombre}`;
+
+      } else {
+        datosNotificacion.mensaje = `${Configuracion.mensajeCreacionSolicitud}
+          ${Configuracion.fechasolicitudArg} ${solicitudregistrada.fecha}
+          ${Configuracion.nombretrabajoArg} ${solicitudregistrada.nombre_trabajo}
+          ${Configuracion.modalidadArg} ${modalidadsolicitud.nombre}
+          ${Configuracion.comiteArg} ${comitesString}
+          ${Configuracion.lineaArg} ${lineasolicitud.nombre}
+          ${Configuracion.archivoArg} ${solicitudregistrada.archivo}
+          ${Configuracion.descripcionArg} ${solicitudregistrada.descripcion}`
       }
+
       this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
     }
-
 
     return registro;
   }

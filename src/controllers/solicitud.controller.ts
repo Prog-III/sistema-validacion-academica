@@ -1,40 +1,32 @@
-import {inject, service} from '@loopback/core';
-import {NotificacionCorreo} from '../models/notificacion-correo.model';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
-
-import {NotificacionesService} from '../services';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Solicitud} from '../models';
-import {SolicitudRepository, SolicitudProponenteRepository} from '../repositories';
+import {SolicitudProponenteRepository, SolicitudRepository} from '../repositories';
+import {NotificacionesService} from '../services';
 
 export class SolicitudController {
   constructor(
     @repository(SolicitudRepository)
-    public solicitudRepository : SolicitudRepository,
+    public solicitudRepository: SolicitudRepository,
 
     @repository(SolicitudProponenteRepository)
-    public solicitudproponenteRepository : SolicitudProponenteRepository,
+    public solicitudproponenteRepository: SolicitudProponenteRepository,
 
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService
-  ) {}
+  ) { }
 
   @post('/solicitudes')
   @response(200, {
@@ -51,31 +43,9 @@ export class SolicitudController {
           }),
         },
       },
-
-
     })
     solicitud: Omit<Solicitud, 'id'>,
   ): Promise<Solicitud> {
-
-    let solicitudAntigua = await this.solicitudRepository.findOne({
-      where: {
-        nombre_trabajo: solicitud.nombre_trabajo,
-        id_linea_investigacion: solicitud.id_linea_investigacion,
-        id_modalidad: solicitud.id_modalidad
-      },
-    })
-    if(solicitudAntigua){
-      solicitud.id_estado = solicitudAntigua.id_estado;
-
-      if(solicitudAntigua.coincidencias){
-        solicitud.coincidencias = solicitudAntigua.id + ", " + solicitudAntigua.coincidencias;
-      }
-      else{
-        solicitud.coincidencias = String(solicitudAntigua.id);
-      }
-    }
-
-
     return this.solicitudRepository.create(solicitud);
   }
 

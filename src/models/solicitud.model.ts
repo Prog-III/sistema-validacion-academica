@@ -1,13 +1,13 @@
-import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository';
-import {Proponente} from './proponente.model';
-import {SolicitudProponente} from './solicitud-proponente.model';
+import {belongsTo, Entity, hasMany, model, property} from '@loopback/repository';
 import {Comite} from './comite.model';
-import {SolicitudComite} from './solicitud-comite.model';
-import {LineaInvestigacion} from './linea-investigacion.model';
-import {TipoSolicitud} from './tipo-solicitud.model';
-import {Modalidad} from './modalidad.model';
 import {EstadoSolicitud} from './estado-solicitud.model';
 import {InvitacionEvaluar} from './invitacion-evaluar.model';
+import {LineaInvestigacion} from './linea-investigacion.model';
+import {Modalidad} from './modalidad.model';
+import {Proponente} from './proponente.model';
+import {SolicitudComite} from './solicitud-comite.model';
+import {SolicitudProponente} from './solicitud-proponente.model';
+import {TipoSolicitud} from './tipo-solicitud.model';
 
 @model()
 export class Solicitud extends Entity {
@@ -35,16 +35,12 @@ export class Solicitud extends Entity {
     required: true,
   })
   archivo: string;
+
   @property({
     type: 'string',
     required: true,
   })
   descripcion: string;
-
-  @property({
-    type: 'string'
-  })
-  coincidencias?: string;
 
   @hasMany(() => Proponente, {through: {model: () => SolicitudProponente, keyFrom: 'id_solicitud', keyTo: 'id_proponente'}})
   proponentes: Proponente[];
