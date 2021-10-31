@@ -1,5 +1,7 @@
+export * from './archivo.model';
 export * from './arreglo-general';
 export * from './comite.model';
+export * from './correo-notificacion.model';
 export * from './departamento.model';
 export * from './estado-solicitud.model';
 export * from './facultad.model';
@@ -18,4 +20,4 @@ export * from './solicitud.model';
 export * from './tipo-solicitud.model';
 export * from './tipo-vinculacion.model';
 
-export * from './correo-notificacion.model';
+

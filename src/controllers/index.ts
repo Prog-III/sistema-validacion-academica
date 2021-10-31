@@ -36,4 +36,9 @@ export * from './resultado-evaluacion.controller';
 export * from './solicitud.controller';
 export * from './tipo-solicitud.controller';
 export * from './tipo-vinculacion.controller';
+<<<<<<< HEAD
 export * from './correo-notificacion.controller';
+=======
+export * from './cargar-archivos.controller';
+export * from './descargar-archivos.controller';
+>>>>>>> subida_archivos
