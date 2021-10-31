@@ -16,7 +16,7 @@ import {
 } from '@loopback/rest';
 import path from 'path';
 import {cloudFilesRoutes} from '../config/index.config';
-import {filesInterceptor} from '../middleware/multer';
+import {imagesInterceptor} from '../middleware/multer';
 import {Proponente} from '../models';
 import {ProponenteRepository, TipoVinculacionRepository} from '../repositories';
 import {cloudinary} from '../services/cloudinary.service';
@@ -33,7 +33,7 @@ export class ProponenteController {
   ) { }
 
   @post('/proponentes')
-  @intercept(filesInterceptor)
+  @intercept(imagesInterceptor)
   @response(200, {
     description: 'Proponente model instance',
     content: {'application/json': {schema: getModelSchemaRef(Proponente)}},

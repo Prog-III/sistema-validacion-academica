@@ -13,7 +13,7 @@ import {
   ArregloGeneral, Proponente, Solicitud, SolicitudProponente
 } from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
-import {LineaInvestigacionRepository, ModalidadRepository, ProponenteRepository, SolicitudComiteRepository, SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
+import {LineaInvestigacionRepository, ModalidadRepository, ProponenteRepository, SolicitudComiteRepository, EstadoSolicitudRepository ,SolicitudProponenteRepository, SolicitudRepository, TipoVinculacionRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 
 require('dotenv').config();
@@ -33,6 +33,8 @@ export class SolicitudProponenteController {
     public solicitudcomiteRepository: SolicitudComiteRepository,
     @repository(ProponenteRepository)
     public proponenteRepository: ProponenteRepository,
+    @repository(EstadoSolicitudRepository)
+    public estadoSolicitudRepository: EstadoSolicitudRepository,
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService
   ) { }
@@ -77,6 +79,7 @@ export class SolicitudProponenteController {
       },
     }) datos: Omit<SolicitudProponente, 'id'>,
   ): Promise<SolicitudProponente | null> {
+
     let registro = await this.solicitudproponenteRepository.create(datos);
     if (registro) {
       let datosNotificacion = new NotificacionCorreo();
@@ -104,10 +107,18 @@ export class SolicitudProponenteController {
       ${Configuracion.lineaArg} ${lineasolicitud.nombre}
       ${Configuracion.archivoArg} ${solicitudregistrada.archivo}
       ${Configuracion.descripcionArg} ${solicitudregistrada.descripcion}`
+
+      if(solicitudregistrada.coincidencias){
+        let estadoActualSolicitud = await this.estadoSolicitudRepository.findById(solicitudregistrada.id_estado);
+        datosNotificacion.mensaje = datosNotificacion.mensaje + `Ya existe un trabajo similar al suyo y el estado asignado para su solicitud es: ${(estadoActualSolicitud.nombre)}`;
+      }
       this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
     }
+
+
     return registro;
   }
+
 
   @post('/asociar-solicitud-proponentes/{id}', {
     responses: {

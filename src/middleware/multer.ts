@@ -16,6 +16,8 @@ const multerMiddleware: ExpressRequestHandler = multer({
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif|svg/;
     const mimetype = filetypes.test(file.mimetype);
+
+
     const extname = filetypes.test(path.extname(file.originalname));
 
     if (mimetype && extname) return cb(null, true);
@@ -28,6 +30,25 @@ const multerMiddleware: ExpressRequestHandler = multer({
   },
 }).single('image_file');
 
-const filesInterceptor = toInterceptor(multerMiddleware);
+const multerMiddlewareFile: ExpressRequestHandler = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const filetypes = /plain|pdf|txt|zip|rar|doc|docx/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname));
+;
 
-export {filesInterceptor};
+    if (mimetype && extname) return cb(null, true);
+
+    cb(
+      new HttpErrors.BadRequest(
+        'File extension no valid << Valid extensions : (.pdf , .txt, .zip , .rar , .doc, .docx, .plain) >>',
+      ),
+    );
+  },
+}).single('file');
+
+const imagesInterceptor = toInterceptor(multerMiddleware);
+const filesInterceptor = toInterceptor(multerMiddlewareFile);
+
+export {imagesInterceptor, filesInterceptor};

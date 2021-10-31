@@ -35,12 +35,16 @@ export class Solicitud extends Entity {
     required: true,
   })
   archivo: string;
-
   @property({
     type: 'string',
     required: true,
   })
   descripcion: string;
+
+  @property({
+    type: 'string'
+  })
+  coincidencias?: string;
 
   @hasMany(() => Proponente, {through: {model: () => SolicitudProponente, keyFrom: 'id_solicitud', keyTo: 'id_proponente'}})
   proponentes: Proponente[];
