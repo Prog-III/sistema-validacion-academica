@@ -1,8 +1,8 @@
-import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
-import {Solicitud} from './solicitud.model';
+import {belongsTo, Entity, hasMany, model, property} from '@loopback/repository';
 import {Jurado} from './jurado.model';
-import {ResultadoEvaluacion} from './resultado-evaluacion.model';
 import {Recordatorio} from './recordatorio.model';
+import {ResultadoEvaluacion} from './resultado-evaluacion.model';
+import {Solicitud} from './solicitud.model';
 
 @model()
 export class InvitacionEvaluar extends Entity {
@@ -25,10 +25,15 @@ export class InvitacionEvaluar extends Entity {
   fecha_respuesta?: string;
 
   @property({
-    type: 'string',
+    type: 'number',
     required: true,
   })
-  estado_invitacion: string;
+  estado_invitacion: number;
+
+  @property({
+    type: 'string'
+  })
+  hash?: string;
 
   @property({
     type: 'string',
