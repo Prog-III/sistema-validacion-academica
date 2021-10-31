@@ -40,6 +40,12 @@ export class InvitacionEvaluar extends Entity {
   })
   observaciones?: string;
 
+  @property({
+    type: 'number',
+    default: 0
+  })
+  estado_evaluacion: number;
+
   @belongsTo(() => Solicitud, {name: 'invitacion_evaluar_pertenece_a_solicitud'})
   id_solicitud: number;
 

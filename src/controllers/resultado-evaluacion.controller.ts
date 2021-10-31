@@ -55,17 +55,22 @@ export class ResultadoEvaluacionController {
 
     if (resultadoEvaluacionCreado) {
       let invitacionEvaluar = await this.invitacionEvaluarRepository.findById(resultadoEvaluacionCreado.id_invitacion_evaluar);
-      let jurado = await this.juradoRepository.findById(invitacionEvaluar.id_jurado);
-      let solicitud = await this.solicitudRepository.findById(invitacionEvaluar.id_solicitud);
+      invitacionEvaluar.estado_evaluacion = 2;
 
-      let asunto = 'Evaluación jurado';
-      let saludo = Configuracion.saludo;
+      this.invitacionEvaluarRepository.updateById(invitacionEvaluar.id, invitacionEvaluar)
+        .then(async () => {
+          let jurado = await this.juradoRepository.findById(invitacionEvaluar.id_jurado);
+          let solicitud = await this.solicitudRepository.findById(invitacionEvaluar.id_solicitud);
 
-      let mensaje = `
-        El jurado ${jurado.nombre} ha evaluado el trabajo: '${solicitud.nombre_trabajo}'
-        con las siguientes consideraciones: ${resultadoEvaluacionCreado.descripcion}`;
+          let asunto = 'Evaluación jurado';
+          let saludo = Configuracion.saludo;
 
-      this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+          let mensaje = `
+            El jurado ${jurado.nombre} ha evaluado el trabajo: '${solicitud.nombre_trabajo}'
+            con las siguientes consideraciones: ${resultadoEvaluacionCreado.descripcion}`;
+
+          this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+        })
     }
 
     return resultadoEvaluacionCreado;

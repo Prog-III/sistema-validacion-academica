@@ -194,11 +194,12 @@ export class InvitacionEvaluarController {
         const saludo = `${Configuracion.saludo}`;
 
         if (nuevoEstadoInvitacion === 1) {
+          invitacionActual.estado_evaluacion = 1;
+
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
             .then(() => {
               const mensaje = `El jurado ${juradoInvitado.nombre} ha aceptado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
-
-              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje);
             })
         } else if (nuevoEstadoInvitacion === 2) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
