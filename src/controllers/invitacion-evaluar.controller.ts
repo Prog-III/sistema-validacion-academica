@@ -13,10 +13,12 @@ import {
   response
 } from '@loopback/rest';
 import {Configuracion} from '../llaves/configuracion';
+import {ConfiguracionUsuarios} from '../llaves/configuracion.usuarios';
 import {InvitacionEvaluar} from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
 import {InvitacionEvaluarRepository, JuradoRepository, SolicitudRepository} from '../repositories';
 import {NotificacionesService} from '../services';
+import {TokenService} from '../services/token.service';
 
 const createHash = require('hash-generator');
 
@@ -29,7 +31,9 @@ export class InvitacionEvaluarController {
     @repository(SolicitudRepository)
     public solicitudRepository: SolicitudRepository,
     @service(NotificacionesService)
-    public servicioNotificaciones: NotificacionesService
+    public servicioNotificaciones: NotificacionesService,
+    @service(TokenService)
+    public servicioToken: TokenService
   ) { }
 
   @post('/invitaciones-evaluar')
@@ -185,7 +189,7 @@ export class InvitacionEvaluarController {
 
       if (estadoInvitacion === 0) {
         const nuevoEstadoInvitacion = objetoEstadoInvitacion.nuevoEstado;
-        invitacionActual.estado_invitacion = nuevoEstadoInvitacion;
+        invitacionActual.estado_invitacion = 0//nuevoEstadoInvitacion;
 
         const juradoInvitado = await this.juradoRepository.findById(invitacionActual.id_jurado);
         const solicitud = await this.solicitudRepository.findById(invitacionActual.id_solicitud);
@@ -193,11 +197,14 @@ export class InvitacionEvaluarController {
         const asunto = 'Respuesta jurado';
         const saludo = `${Configuracion.saludo}`;
 
+
         if (nuevoEstadoInvitacion === 1) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
-            .then(() => {
-
+            .then(async () => {
               const mensaje = `El jurado ${juradoInvitado.nombre} ha aceptado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
+
+              let token = await this.servicioToken.ObtenerTokenTemporal(ConfiguracionUsuarios.claveSecretaJWT)
+              token = await token.text();
 
               this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
             })
