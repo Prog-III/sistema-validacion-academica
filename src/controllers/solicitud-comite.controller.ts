@@ -1,36 +1,33 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  Count,
-  CountSchema,
   Filter,
-  repository,
-  Where,
+  repository
 } from '@loopback/repository';
-  import {
+import {
   del,
   get,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  param,
-  patch,
-  post,
+  getModelSchemaRef, param, post,
   requestBody,
+  response
 } from '@loopback/rest';
 import {
-Solicitud,
-SolicitudComite,
-Comite,
+  ArregloGeneral,
+  Comite, Solicitud, SolicitudComite
 } from '../models';
-import {SolicitudRepository} from '../repositories';
+import {SolicitudComiteRepository, SolicitudRepository} from '../repositories';
 
+@authenticate('admin')
 export class SolicitudComiteController {
   constructor(
     @repository(SolicitudRepository) protected solicitudRepository: SolicitudRepository,
+    @repository(SolicitudComiteRepository) protected solicitudComiteRepository: SolicitudComiteRepository
   ) { }
 
-  @get('/solicituds/{id}/comites', {
+  @authenticate('admin', 'auxiliar')
+  @get('/solicitudes/{id}/comites', {
     responses: {
       '200': {
-        description: 'Array of Solicitud has many Comite through SolicitudComite',
+        description: 'Array of solicitudes has many comite through SolicitudComite',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(Comite)},
@@ -46,65 +43,86 @@ export class SolicitudComiteController {
     return this.solicitudRepository.comites(id).find(filter);
   }
 
-  @post('/solicituds/{id}/comites', {
+  @post('/solicitud-comite', {
     responses: {
       '200': {
-        description: 'create a Comite model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Comite)}},
+        description: 'create a instance of comite with a solicitud',
+        content: {'application/json': {schema: getModelSchemaRef(SolicitudComite)}},
       },
     },
   })
-  async create(
-    @param.path.number('id') id: typeof Solicitud.prototype.id,
+  async createRelation(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Comite, {
-            title: 'NewComiteInSolicitud',
+          schema: getModelSchemaRef(SolicitudComite, {
+            title: 'NewComiteWithSolicitud',
             exclude: ['id'],
           }),
         },
       },
-    }) comite: Omit<Comite, 'id'>,
-  ): Promise<Comite> {
-    return this.solicitudRepository.comites(id).create(comite);
+    }) datos: Omit<SolicitudComite, 'id'>,
+  ): Promise<SolicitudComite | null> {
+    let registro = await this.solicitudComiteRepository.create(datos);
+    return registro;
   }
 
-  @patch('/solicituds/{id}/comites', {
+  @post('/asociar-solicitud-comites/{id}', {
     responses: {
       '200': {
-        description: 'Solicitud.Comite PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
+        description: 'create a instance of comite with a solicitud',
+        content: {'application/json': {schema: getModelSchemaRef(SolicitudComite)}},
       },
     },
   })
-  async patch(
-    @param.path.number('id') id: number,
+  async createRelations(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Comite, {partial: true}),
+          schema: getModelSchemaRef(ArregloGeneral, {}),
         },
       },
-    })
-    comite: Partial<Comite>,
-    @param.query.object('where', getWhereSchemaFor(Comite)) where?: Where<Comite>,
-  ): Promise<Count> {
-    return this.solicitudRepository.comites(id).patch(comite, where);
+    }) datos: ArregloGeneral,
+    @param.path.number('id') id_solicitud: typeof Solicitud.prototype.id
+  ): Promise<Boolean> {
+    if (datos.array_general.length > 0) {
+      datos.array_general.forEach(async (id_comite: number) => {
+        let existe = await this.solicitudComiteRepository.findOne({
+          where: {
+            id_solicitud: id_solicitud,
+            id_comite: id_comite
+          }
+        });
+        if (!existe) {
+          this.solicitudComiteRepository.create({
+            id_solicitud: id_solicitud,
+            id_comite: id_comite
+          });
+        }
+      });
+      return true;
+    }
+    return false;
   }
 
-  @del('/solicituds/{id}/comites', {
-    responses: {
-      '200': {
-        description: 'Solicitud.Comite DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
+
+  @del('/solicitudes/{id_solicitud}/{id_comite}')
+  @response(204, {
+    description: 'relation DELETE success',
   })
-  async delete(
-    @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(Comite)) where?: Where<Comite>,
-  ): Promise<Count> {
-    return this.solicitudRepository.comites(id).delete(where);
+  async EliminarLineaDeJurado(
+    @param.path.number('id_solicitud') id_solicitud: number,
+    @param.path.number('id_comite') id_comite: number): Promise<Boolean> {
+    let reg = await this.solicitudComiteRepository.findOne({
+      where: {
+        id_solicitud: id_solicitud,
+        id_comite: id_comite
+      }
+    });
+    if (reg) {
+      await this.solicitudComiteRepository.deleteById(reg.id);
+      return true;
+    }
+    return false;
   }
 }

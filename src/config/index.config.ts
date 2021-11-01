@@ -20,7 +20,8 @@ const microsoft_azure = {
 
 
 const cloudFilesRoutes = { //Ruta para guardar la imagen en el cloudinary-------VER ESTO
-  proponente: 'vt_academicos/proponente'
+  proponente: 'vt_academicos/proponente',
+  archivos: 'vt_academicos/archivos'
 };
 
 export {

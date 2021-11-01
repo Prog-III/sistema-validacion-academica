@@ -16,3 +16,4 @@ export * from './recordatorio.repository';
 export * from './resultado-evaluacion.repository';
 export * from './solicitud-comite.repository';
 export * from './tipo-solicitud.repository';
+export * from './correo-notificacion.repository';

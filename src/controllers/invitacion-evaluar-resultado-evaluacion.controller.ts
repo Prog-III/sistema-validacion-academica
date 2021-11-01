@@ -1,9 +1,10 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,14 +14,15 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
   InvitacionEvaluar,
-  ResultadoEvaluacion,
+  ResultadoEvaluacion
 } from '../models';
 import {InvitacionEvaluarRepository} from '../repositories';
 
+@authenticate('admin')
 export class InvitacionEvaluarResultadoEvaluacionController {
   constructor(
     @repository(InvitacionEvaluarRepository) protected invitacionEvaluarRepository: InvitacionEvaluarRepository,

@@ -1,9 +1,10 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,19 +14,21 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
   EstadoSolicitud,
-  Solicitud,
+  Solicitud
 } from '../models';
 import {EstadoSolicitudRepository} from '../repositories';
 
+@authenticate('admin')
 export class EstadoSolicitudSolicitudController {
   constructor(
     @repository(EstadoSolicitudRepository) protected estadoSolicitudRepository: EstadoSolicitudRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/estado-solicituds/{id}/solicituds', {
     responses: {
       '200': {

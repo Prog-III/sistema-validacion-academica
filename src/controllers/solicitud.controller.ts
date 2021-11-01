@@ -1,31 +1,36 @@
+import {authenticate} from '@loopback/authentication';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Solicitud} from '../models';
-import {SolicitudRepository} from '../repositories';
+import {SolicitudProponenteRepository, SolicitudRepository} from '../repositories';
+import {NotificacionesService} from '../services';
 
+@authenticate('admin')
 export class SolicitudController {
   constructor(
     @repository(SolicitudRepository)
-    public solicitudRepository : SolicitudRepository,
-  ) {}
+    public solicitudRepository: SolicitudRepository,
 
+    @repository(SolicitudProponenteRepository)
+    public solicitudproponenteRepository: SolicitudProponenteRepository,
+
+    @service(NotificacionesService)
+    public servicioNotificaciones: NotificacionesService
+  ) { }
+
+  @authenticate('admin', 'auxiliar')
   @post('/solicitudes')
   @response(200, {
     description: 'Solicitud model instance',
@@ -58,6 +63,7 @@ export class SolicitudController {
     return this.solicitudRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @get('/solicitudes')
   @response(200, {
     description: 'Array of Solicitud model instances',
@@ -95,6 +101,7 @@ export class SolicitudController {
     return this.solicitudRepository.updateAll(solicitud, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director', 'evaluador')
   @get('/solicitudes/{id}')
   @response(200, {
     description: 'Solicitud model instance',
@@ -111,6 +118,7 @@ export class SolicitudController {
     return this.solicitudRepository.findById(id, filter);
   }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @patch('/solicitudes/{id}')
   @response(204, {
     description: 'Solicitud PATCH success',
@@ -129,6 +137,7 @@ export class SolicitudController {
     await this.solicitudRepository.updateById(id, solicitud);
   }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @put('/solicitudes/{id}')
   @response(204, {
     description: 'Solicitud PUT success',

@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {LineaInvestigacion} from '../models';
 import {LineaInvestigacionRepository} from '../repositories';
 
+@authenticate('admin')
 export class LineaInvestigacionController {
   constructor(
     @repository(LineaInvestigacionRepository)
-    public lineaInvestigacionRepository : LineaInvestigacionRepository,
-  ) {}
+    public lineaInvestigacionRepository: LineaInvestigacionRepository,
+  ) { }
 
   @post('/lineas-investigacion')
   @response(200, {
@@ -58,6 +54,7 @@ export class LineaInvestigacionController {
     return this.lineaInvestigacionRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar')
   @get('/lineas-investigacion')
   @response(200, {
     description: 'Array of LineaInvestigacion model instances',

@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Jurado} from '../models';
 import {JuradoRepository} from '../repositories';
 
+@authenticate('admin')
 export class JuradoController {
   constructor(
     @repository(JuradoRepository)
-    public juradoRepository : JuradoRepository,
-  ) {}
+    public juradoRepository: JuradoRepository,
+  ) { }
 
   @post('/jurados')
   @response(200, {
@@ -58,6 +54,7 @@ export class JuradoController {
     return this.juradoRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @get('/jurados')
   @response(200, {
     description: 'Array of Jurado model instances',
@@ -95,6 +92,7 @@ export class JuradoController {
     return this.juradoRepository.updateAll(jurado, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director', 'evaluador')
   @get('/jurados/{id}')
   @response(200, {
     description: 'Jurado model instance',

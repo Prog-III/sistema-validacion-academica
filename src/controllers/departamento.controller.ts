@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Departamento} from '../models';
 import {DepartamentoRepository} from '../repositories';
 
+@authenticate('admin')
 export class DepartamentoController {
   constructor(
     @repository(DepartamentoRepository)
-    public departamentoRepository : DepartamentoRepository,
-  ) {}
+    public departamentoRepository: DepartamentoRepository,
+  ) { }
 
   @post('/departamentos')
   @response(200, {
@@ -58,6 +54,7 @@ export class DepartamentoController {
     return this.departamentoRepository.count(where);
   }
 
+  @authenticate('admin', 'auxliar')
   @get('/departamentos')
   @response(200, {
     description: 'Array of Departamento model instances',

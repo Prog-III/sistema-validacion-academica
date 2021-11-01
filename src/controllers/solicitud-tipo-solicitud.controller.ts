@@ -1,23 +1,25 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  repository,
+  repository
 } from '@loopback/repository';
 import {
-  param,
   get,
-  getModelSchemaRef,
+  getModelSchemaRef, param
 } from '@loopback/rest';
 import {
   Solicitud,
-  TipoSolicitud,
+  TipoSolicitud
 } from '../models';
 import {SolicitudRepository} from '../repositories';
 
+@authenticate('admin')
 export class SolicitudTipoSolicitudController {
   constructor(
     @repository(SolicitudRepository)
     public solicitudRepository: SolicitudRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/solicituds/{id}/tipo-solicitud', {
     responses: {
       '200': {

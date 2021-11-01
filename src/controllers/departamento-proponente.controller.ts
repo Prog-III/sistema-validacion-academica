@@ -1,36 +1,32 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  Count,
-  CountSchema,
   Filter,
-  repository,
-  Where,
+  repository
 } from '@loopback/repository';
-  import {
+import {
   del,
   get,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  param,
-  patch,
-  post,
+  getModelSchemaRef, param, post,
   requestBody,
+  response
 } from '@loopback/rest';
 import {
-Departamento,
-ProponenteDepartamento,
-Proponente,
+  ArregloGeneral, Departamento, Proponente, ProponenteDepartamento
 } from '../models';
-import {DepartamentoRepository} from '../repositories';
+import {DepartamentoRepository, ProponenteDepartamentoRepository} from '../repositories';
 
+@authenticate('admin')
 export class DepartamentoProponenteController {
   constructor(
     @repository(DepartamentoRepository) protected departamentoRepository: DepartamentoRepository,
+    @repository(ProponenteDepartamentoRepository) protected proponentedepartamentoRepository: ProponenteDepartamentoRepository
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/departamentos/{id}/proponentes', {
     responses: {
       '200': {
-        description: 'Array of Departamento has many Proponente through ProponenteDepartamento',
+        description: 'Array of departamentos has many proponente through DepartamentoProponente',
         content: {
           'application/json': {
             schema: {type: 'array', items: getModelSchemaRef(Proponente)},
@@ -46,65 +42,86 @@ export class DepartamentoProponenteController {
     return this.departamentoRepository.proponentes(id).find(filter);
   }
 
-  @post('/departamentos/{id}/proponentes', {
+  @post('/departamento-proponente', {
     responses: {
       '200': {
-        description: 'create a Proponente model instance',
-        content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
+        description: 'create a instance of proponente with a departamento',
+        content: {'application/json': {schema: getModelSchemaRef(ProponenteDepartamento)}},
       },
     },
   })
-  async create(
-    @param.path.number('id') id: typeof Departamento.prototype.id,
+  async createRelation(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Proponente, {
-            title: 'NewProponenteInDepartamento',
+          schema: getModelSchemaRef(ProponenteDepartamento, {
+            title: 'NewProponenteWithDepartamento',
             exclude: ['id'],
           }),
         },
       },
-    }) proponente: Omit<Proponente, 'id'>,
-  ): Promise<Proponente> {
-    return this.departamentoRepository.proponentes(id).create(proponente);
+    }) datos: Omit<ProponenteDepartamento, 'id'>,
+  ): Promise<ProponenteDepartamento | null> {
+    let registro = await this.proponentedepartamentoRepository.create(datos);
+    return registro;
   }
 
-  @patch('/departamentos/{id}/proponentes', {
+  @post('/asociar-departamento-proponentes/{id}', {
     responses: {
       '200': {
-        description: 'Departamento.Proponente PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
+        description: 'create a instance of proponente with a departamento',
+        content: {'application/json': {schema: getModelSchemaRef(ProponenteDepartamento)}},
       },
     },
   })
-  async patch(
-    @param.path.number('id') id: number,
+  async createRelations(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Proponente, {partial: true}),
+          schema: getModelSchemaRef(ArregloGeneral, {}),
         },
       },
-    })
-    proponente: Partial<Proponente>,
-    @param.query.object('where', getWhereSchemaFor(Proponente)) where?: Where<Proponente>,
-  ): Promise<Count> {
-    return this.departamentoRepository.proponentes(id).patch(proponente, where);
+    }) datos: ArregloGeneral,
+    @param.path.number('id') id_departamento: typeof Departamento.prototype.id
+  ): Promise<Boolean> {
+    if (datos.array_general.length > 0) {
+      datos.array_general.forEach(async (id_proponente: number) => {
+        let existe = await this.proponentedepartamentoRepository.findOne({
+          where: {
+            id_departamento: id_departamento,
+            id_proponente: id_proponente
+          }
+        });
+        if (!existe) {
+          this.proponentedepartamentoRepository.create({
+            id_departamento: id_departamento,
+            id_proponente: id_proponente
+          });
+        }
+      });
+      return true;
+    }
+    return false;
   }
 
-  @del('/departamentos/{id}/proponentes', {
-    responses: {
-      '200': {
-        description: 'Departamento.Proponente DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
+
+  @del('/departamentos/{id_departamento}/{id_proponente}')
+  @response(204, {
+    description: 'relation DELETE success',
   })
-  async delete(
-    @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(Proponente)) where?: Where<Proponente>,
-  ): Promise<Count> {
-    return this.departamentoRepository.proponentes(id).delete(where);
+  async EliminarProponentedeSolicitud(
+    @param.path.number('id_departamento') id_departamento: number,
+    @param.path.number('id_proponente') id_proponente: number): Promise<Boolean> {
+    let reg = await this.proponentedepartamentoRepository.findOne({
+      where: {
+        id_departamento: id_departamento,
+        id_proponente: id_proponente
+      }
+    });
+    if (reg) {
+      await this.proponentedepartamentoRepository.deleteById(reg.id);
+      return true;
+    }
+    return false;
   }
 }

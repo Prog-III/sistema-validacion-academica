@@ -1,23 +1,25 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  repository,
+  repository
 } from '@loopback/repository';
 import {
-  param,
   get,
-  getModelSchemaRef,
+  getModelSchemaRef, param
 } from '@loopback/rest';
 import {
   Proponente,
-  TipoVinculacion,
+  TipoVinculacion
 } from '../models';
 import {ProponenteRepository} from '../repositories';
 
+@authenticate('admin')
 export class ProponenteTipoVinculacionController {
   constructor(
     @repository(ProponenteRepository)
     public proponenteRepository: ProponenteRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/proponentes/{id}/tipo-vinculacion', {
     responses: {
       '200': {

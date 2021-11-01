@@ -1,9 +1,10 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,19 +14,20 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
-  Facultad,
-  Departamento,
+  Departamento, Facultad
 } from '../models';
 import {FacultadRepository} from '../repositories';
 
+@authenticate('admin')
 export class FacultadDepartamentoController {
   constructor(
     @repository(FacultadRepository) protected facultadRepository: FacultadRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/facultads/{id}/departamentos', {
     responses: {
       '200': {
@@ -60,8 +62,7 @@ export class FacultadDepartamentoController {
         'application/json': {
           schema: getModelSchemaRef(Departamento, {
             title: 'NewDepartamentoInFacultad',
-            exclude: ['id'],
-            optional: ['id_departamento']
+            exclude: ['id']
           }),
         },
       },

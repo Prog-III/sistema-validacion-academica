@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Comite} from '../models';
 import {ComiteRepository} from '../repositories';
 
+@authenticate('admin')
 export class ComiteController {
   constructor(
     @repository(ComiteRepository)
-    public comiteRepository : ComiteRepository,
-  ) {}
+    public comiteRepository: ComiteRepository,
+  ) { }
 
   @post('/comites')
   @response(200, {
@@ -58,6 +54,7 @@ export class ComiteController {
     return this.comiteRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar')
   @get('/comites')
   @response(200, {
     description: 'Array of Comite model instances',

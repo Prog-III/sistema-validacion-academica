@@ -1,9 +1,10 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,19 +14,21 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
   LineaInvestigacion,
-  Solicitud,
+  Solicitud
 } from '../models';
 import {LineaInvestigacionRepository} from '../repositories';
+@authenticate('admin')
 
 export class LineaInvestigacionSolicitudController {
   constructor(
     @repository(LineaInvestigacionRepository) protected lineaInvestigacionRepository: LineaInvestigacionRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/linea-investigacions/{id}/solicituds', {
     responses: {
       '200': {

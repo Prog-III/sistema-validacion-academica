@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {EstadoSolicitud} from '../models';
 import {EstadoSolicitudRepository} from '../repositories';
 
+@authenticate('admin')
 export class EstadoSolicitudController {
   constructor(
     @repository(EstadoSolicitudRepository)
-    public estadoSolicitudRepository : EstadoSolicitudRepository,
-  ) {}
+    public estadoSolicitudRepository: EstadoSolicitudRepository,
+  ) { }
 
   @post('/estado-solicitudes')
   @response(200, {
@@ -58,6 +54,7 @@ export class EstadoSolicitudController {
     return this.estadoSolicitudRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar')
   @get('/estado-solicitudes')
   @response(200, {
     description: 'Array of EstadoSolicitud model instances',

@@ -1,4 +1,4 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {belongsTo, Entity, model, property} from '@loopback/repository';
 import {TipoVinculacion} from './tipo-vinculacion.model';
 
 @model()
@@ -57,7 +57,7 @@ export class Proponente extends Entity {
   celular: string;
 
   @property({
-    type: 'string',
+    type: 'string'
   })
   image?: string;
 
