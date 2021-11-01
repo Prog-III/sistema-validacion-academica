@@ -1,5 +1,6 @@
 import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {ConfiguracionUsuarios} from '../llaves/configuracion.usuarios';
+import {Token} from '../models/token.model';
 
 const fetch = require('node-fetch');
 
@@ -19,5 +20,17 @@ export class TokenService {
         'Content-Type': 'application/json'
       }
     })
+  }
+
+  async VerificarToken(token: string): Promise<Token> {
+    const tokenReponse = await fetch(ConfiguracionUsuarios.urlVerificarToken, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify(token)
+    });
+
+    return await tokenReponse.json();
   }
 }
