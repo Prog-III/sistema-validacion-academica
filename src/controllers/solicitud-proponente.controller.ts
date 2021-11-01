@@ -83,9 +83,13 @@ export class SolicitudProponenteController {
     }) datos: Omit<SolicitudProponente, 'id'>,
   ): Promise<SolicitudProponente | null> {
 
+    let solicitudProponenteAntiguo = await this.solicitudproponenteRepository.findOne({
+      where: {
+        id_solicitud: datos.id_solicitud
+      }
+    });
+
     let registro = await this.solicitudproponenteRepository.create(datos);
-
-
 
     if (registro) {
       let datosNotificacion = new NotificacionCorreo();
@@ -106,12 +110,6 @@ export class SolicitudProponenteController {
       datosNotificacion.asunto = Configuracion.asuntoCreacionSolicitud;
       datosNotificacion.saludo = `${Configuracion.saludo} <strong>${proponenteregistrado.primer_nombre}</strong>`
 
-
-      let solicitudProponenteAntiguo = await this.solicitudproponenteRepository.findOne({
-        where: {
-          id_solicitud: registro.id_solicitud
-        }
-      });
 
       if (solicitudProponenteAntiguo) {
         let solicitudAntigua = await this.solicitudRepository.findById(solicitudProponenteAntiguo.id_solicitud);
