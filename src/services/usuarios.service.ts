@@ -21,4 +21,15 @@ export class UsuariosService {
       body: JSON.stringify(usuario)
     })
   }
+
+  async AsociarUsuarioRol(idUsuario: string, idRol: string, tokenAutenticacion: string) {
+    return await fetch(ConfiguracionUsuarios.urlAsociarUsuarioRol(idUsuario), {
+      headers: {
+        'Authorization': `Bearer ${tokenAutenticacion}`,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      body: JSON.stringify({"arraygeneral": [idRol]})
+    })
+  }
 }

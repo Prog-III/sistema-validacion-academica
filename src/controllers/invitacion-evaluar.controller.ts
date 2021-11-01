@@ -193,7 +193,8 @@ export class InvitacionEvaluarController {
 
       if (estadoInvitacion === 0) {
         const nuevoEstadoInvitacion = objetoEstadoInvitacion.nuevoEstado;
-        invitacionActual.estado_invitacion = 0 //nuevoEstadoInvitacion;
+        invitacionActual.estado_invitacion = nuevoEstadoInvitacion;
+        invitacionActual.fecha_respuesta = `${new Date}`
 
         const juradoInvitado = await this.juradoRepository.findById(invitacionActual.id_jurado);
         const solicitud = await this.solicitudRepository.findById(invitacionActual.id_solicitud);
@@ -222,10 +223,11 @@ export class InvitacionEvaluarController {
               if (usuario) {
                 let usuarioId = await usuario.json();
                 usuarioId = usuarioId._id;
+
+                await this.servicioUsuario.AsociarUsuarioRol(usuarioId, '617ac07f522bb52fccc4ffcd', token).then(res => console.log(res));
               }
 
-
-              // this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
             })
         } else if (nuevoEstadoInvitacion === 2) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
