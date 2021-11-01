@@ -12,13 +12,15 @@ import {
   getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {MD5} from 'crypto-js';
 import {Configuracion} from '../llaves/configuracion';
 import {ConfiguracionUsuarios} from '../llaves/configuracion.usuarios';
-import {InvitacionEvaluar} from '../models';
+import {InvitacionEvaluar, Usuario} from '../models';
 import {NotificacionCorreo} from '../models/notificacion-correo.model';
 import {InvitacionEvaluarRepository, JuradoRepository, SolicitudRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 import {TokenService} from '../services/token.service';
+import {UsuariosService} from '../services/usuarios.service';
 
 const createHash = require('hash-generator');
 
@@ -33,7 +35,9 @@ export class InvitacionEvaluarController {
     @service(NotificacionesService)
     public servicioNotificaciones: NotificacionesService,
     @service(TokenService)
-    public servicioToken: TokenService
+    public servicioToken: TokenService,
+    @service(UsuariosService)
+    public servicioUsuario: UsuariosService
   ) { }
 
   @post('/invitaciones-evaluar')
@@ -189,7 +193,7 @@ export class InvitacionEvaluarController {
 
       if (estadoInvitacion === 0) {
         const nuevoEstadoInvitacion = objetoEstadoInvitacion.nuevoEstado;
-        invitacionActual.estado_invitacion = 0//nuevoEstadoInvitacion;
+        invitacionActual.estado_invitacion = 0 //nuevoEstadoInvitacion;
 
         const juradoInvitado = await this.juradoRepository.findById(invitacionActual.id_jurado);
         const solicitud = await this.solicitudRepository.findById(invitacionActual.id_solicitud);
@@ -203,10 +207,25 @@ export class InvitacionEvaluarController {
             .then(async () => {
               const mensaje = `El jurado ${juradoInvitado.nombre} ha aceptado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
 
-              let token = await this.servicioToken.ObtenerTokenTemporal(ConfiguracionUsuarios.claveSecretaJWT)
+              let token = await this.servicioToken.ObtenerTokenTemporal(MD5(ConfiguracionUsuarios.claveSecretaJWT).toString());
               token = await token.text();
 
-              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+              const usuario = await this.servicioUsuario.CrearUsuario({
+                nombres: juradoInvitado.nombre,
+                apellidos: 'No aplica',
+                documento: 'No aplica',
+                fecha_nacimiento: 'No aplica',
+                correo: juradoInvitado.email,
+                celular: juradoInvitado.telefono
+              } as Usuario, token);
+
+              if (usuario) {
+                let usuarioId = await usuario.json();
+                usuarioId = usuarioId._id;
+              }
+
+
+              // this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
             })
         } else if (nuevoEstadoInvitacion === 2) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)

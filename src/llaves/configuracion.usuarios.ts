@@ -6,7 +6,7 @@ export namespace ConfiguracionUsuarios {
   export const urlObtenerTokenTemporal = `${urlServicioUsuarios}/token-temporal`;
 
   export const claveSecretaJWT = 'Wf_yF8vxSJt9?0-dTK6cBZVnet|;?+r|Ap:1RZwwR3.Zwdj:|O_0,:*HWT?.WKjFGxh|+1';
-  export const claveEncriptacion = 'K=E7f9*#T,G8X+Okw4zsL3w;JWheRn';
+  export const claveEncriptacion = 'K=n*#T,G8X+Okw4zsL3w;JWheRn';
 }
 
 export namespace ConfiguracionTokens {

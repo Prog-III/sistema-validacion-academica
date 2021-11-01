@@ -22,7 +22,7 @@ export class Usuario extends Model {
 
   @property({
     type: 'date',
-    required: true,
+    required: true
   })
   fecha_nacimiento: string;
 
