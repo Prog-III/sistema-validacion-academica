@@ -1,17 +1,18 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  repository,
+  repository
 } from '@loopback/repository';
 import {
-  param,
   get,
-  getModelSchemaRef,
+  getModelSchemaRef, param
 } from '@loopback/rest';
 import {
   InvitacionEvaluar,
-  Solicitud,
+  Solicitud
 } from '../models';
 import {InvitacionEvaluarRepository} from '../repositories';
 
+@authenticate('admin', 'director', 'director', 'evaluador')
 export class InvitacionEvaluarSolicitudController {
   constructor(
     @repository(InvitacionEvaluarRepository)

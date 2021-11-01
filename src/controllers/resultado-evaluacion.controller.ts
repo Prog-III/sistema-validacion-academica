@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -19,6 +20,7 @@ import {JuradoRepository} from '../repositories/jurado.repository';
 import {SolicitudRepository} from '../repositories/solicitud.repository';
 import {NotificacionesService} from '../services/notificaciones.service';
 
+@authenticate('admin')
 export class ResultadoEvaluacionController {
   constructor(
     @repository(ResultadoEvaluacionRepository)
@@ -33,6 +35,7 @@ export class ResultadoEvaluacionController {
     public servicioNotificaciones: NotificacionesService
   ) { }
 
+  @authenticate('admin', 'evaluador')
   @post('/resultados-evaluaciones')
   @response(200, {
     description: 'ResultadoEvaluacion model instance',
@@ -87,6 +90,7 @@ export class ResultadoEvaluacionController {
     return this.resultadoEvaluacionRepository.count(where);
   }
 
+  @authenticate('admin', 'director', 'auxiliar')
   @get('/resultados-evaluaciones')
   @response(200, {
     description: 'Array of ResultadoEvaluacion model instances',
@@ -124,6 +128,7 @@ export class ResultadoEvaluacionController {
     return this.resultadoEvaluacionRepository.updateAll(resultadoEvaluacion, where);
   }
 
+  @authenticate('admin', 'evaluador', 'director', 'auxiliar')
   @get('/resultados-evaluaciones/{id}')
   @response(200, {
     description: 'ResultadoEvaluacion model instance',
@@ -140,6 +145,7 @@ export class ResultadoEvaluacionController {
     return this.resultadoEvaluacionRepository.findById(id, filter);
   }
 
+  @authenticate('admin', 'director')
   @patch('/resultados-evaluaciones/{id}')
   @response(204, {
     description: 'ResultadoEvaluacion PATCH success',
@@ -158,6 +164,7 @@ export class ResultadoEvaluacionController {
     await this.resultadoEvaluacionRepository.updateById(id, resultadoEvaluacion);
   }
 
+  @authenticate('admin', 'director')
   @put('/resultados-evaluaciones/{id}')
   @response(204, {
     description: 'ResultadoEvaluacion PUT success',

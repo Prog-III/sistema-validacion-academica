@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Filter,
   repository
@@ -12,12 +13,14 @@ import {
 } from '../models';
 import {JuradoLineaInvestigacionRepository, JuradoRepository} from '../repositories';
 
+@authenticate('admin')
 export class JuradoLineaInvestigacionController {
   constructor(
     @repository(JuradoRepository) protected juradoRepository: JuradoRepository,
     @repository(JuradoLineaInvestigacionRepository) protected juradoLineaInvestigacionRepository: JuradoLineaInvestigacionRepository
   ) { }
 
+  @authenticate('admin', 'auxiliar', 'director', 'evaluador')
   @get('/jurados/{id}/linea-investigacions', {
     responses: {
       '200': {

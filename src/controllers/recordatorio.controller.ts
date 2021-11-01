@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -19,6 +20,7 @@ import {NotificacionSms} from '../models/notificacion-sms.model';
 import {InvitacionEvaluarRepository, JuradoRepository, RecordatorioRepository, SolicitudRepository} from '../repositories';
 import {NotificacionesService} from '../services';
 
+@authenticate('admin')
 export class RecordatorioController {
   constructor(
     @repository(RecordatorioRepository)
@@ -33,6 +35,7 @@ export class RecordatorioController {
     public servicioNotificaciones: NotificacionesService
   ) { }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @post('/recordatorios')
   @response(200, {
     description: 'Recordatorio model instance',
@@ -109,6 +112,7 @@ export class RecordatorioController {
     return this.recordatorioRepository.find(filter);
   }
 
+  @authenticate('admin', 'auxiliar')
   @patch('/recordatorios')
   @response(200, {
     description: 'Recordatorio PATCH success count',
@@ -144,6 +148,7 @@ export class RecordatorioController {
     return this.recordatorioRepository.findById(id, filter);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @patch('/recordatorios/{id}')
   @response(204, {
     description: 'Recordatorio PATCH success',
@@ -162,6 +167,7 @@ export class RecordatorioController {
     await this.recordatorioRepository.updateById(id, recordatorio);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @put('/recordatorios/{id}')
   @response(204, {
     description: 'Recordatorio PUT success',

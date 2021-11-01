@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {CorreoNotificacion} from '../models';
 import {CorreoNotificacionRepository} from '../repositories';
 
+@authenticate('admin')
 export class CorreoNotificacionController {
   constructor(
     @repository(CorreoNotificacionRepository)
-    public correoNotificacionRepository : CorreoNotificacionRepository,
-  ) {}
+    public correoNotificacionRepository: CorreoNotificacionRepository,
+  ) { }
 
   @post('/correos-notificaciones')
   @response(200, {

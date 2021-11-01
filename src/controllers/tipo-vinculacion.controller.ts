@@ -1,30 +1,26 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {TipoVinculacion} from '../models';
 import {TipoVinculacionRepository} from '../repositories';
 
+@authenticate('admin')
 export class TipoVinculacionController {
   constructor(
     @repository(TipoVinculacionRepository)
-    public tipoVinculacionRepository : TipoVinculacionRepository,
-  ) {}
+    public tipoVinculacionRepository: TipoVinculacionRepository,
+  ) { }
 
   @post('/tipos-vinculaciones')
   @response(200, {
@@ -58,6 +54,7 @@ export class TipoVinculacionController {
     return this.tipoVinculacionRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar')
   @get('/tipos-vinculaciones')
   @response(200, {
     description: 'Array of TipoVinculacion model instances',

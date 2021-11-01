@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   Count,
@@ -24,6 +25,7 @@ import {UsuariosService} from '../services/usuarios.service';
 
 const createHash = require('hash-generator');
 
+@authenticate('admin', 'auxiliar')
 export class InvitacionEvaluarController {
   constructor(
     @repository(InvitacionEvaluarRepository)
@@ -40,6 +42,7 @@ export class InvitacionEvaluarController {
     public servicioUsuario: UsuariosService
   ) { }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @post('/invitaciones-evaluar')
   @response(200, {
     description: 'InvitacionEvaluar model instance',
@@ -129,6 +132,7 @@ export class InvitacionEvaluarController {
     return this.invitacionEvaluarRepository.updateAll(invitacionEvaluar, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @get('/invitaciones-evaluar/{id}')
   @response(200, {
     description: 'InvitacionEvaluar model instance',
@@ -145,7 +149,7 @@ export class InvitacionEvaluarController {
     return this.invitacionEvaluarRepository.findById(id, filter);
   }
 
-
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @patch('/invitaciones-evaluar/{id}')
   @response(204, {
     description: 'InvitacionEvaluar PATCH success',
@@ -164,6 +168,7 @@ export class InvitacionEvaluarController {
     await this.invitacionEvaluarRepository.updateById(id, invitacionEvaluar);
   }
 
+  @authenticate.skip()
   @patch('invitaciones-evaluar/actualizar-estado/{hash}')
   @response(204, {
     description: 'Actualizar estado de la invitacion a evaluar',
@@ -247,6 +252,7 @@ export class InvitacionEvaluarController {
     throw new HttpErrors[404]("Invitacion a evaluar no encontrada");
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @put('/invitaciones-evaluar/{id}')
   @response(204, {
     description: 'InvitacionEvaluar PUT success',
@@ -258,6 +264,7 @@ export class InvitacionEvaluarController {
     await this.invitacionEvaluarRepository.replaceById(id, invitacionEvaluar);
   }
 
+  @authenticate('admin')
   @del('/invitaciones-evaluar/{id}')
   @response(204, {
     description: 'InvitacionEvaluar DELETE success',

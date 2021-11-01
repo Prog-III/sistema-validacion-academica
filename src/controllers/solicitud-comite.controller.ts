@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Filter,
   repository
@@ -15,12 +16,14 @@ import {
 } from '../models';
 import {SolicitudComiteRepository, SolicitudRepository} from '../repositories';
 
+@authenticate('admin')
 export class SolicitudComiteController {
   constructor(
     @repository(SolicitudRepository) protected solicitudRepository: SolicitudRepository,
     @repository(SolicitudComiteRepository) protected solicitudComiteRepository: SolicitudComiteRepository
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/solicitudes/{id}/comites', {
     responses: {
       '200': {

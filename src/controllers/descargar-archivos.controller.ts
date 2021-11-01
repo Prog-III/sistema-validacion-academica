@@ -2,6 +2,7 @@
 
 // import {inject} from '@loopback/core';
 
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   get,
@@ -17,18 +18,18 @@ import {promisify} from 'util';
 import {keys as llaves} from '../config/keys';
 import {Archivo} from '../models';
 
-const readdir = promisify (fs.readdir);
+const readdir = promisify(fs.readdir);
 
-
+@authenticate('admin', 'auxiliar', 'evaluador', 'director')
 export class DescargarArchivosController {
-  constructor() {}
+  constructor() { }
 
   /**
    *
    * @param type
    * @param id
    */
-   @get('/files/{type}', {
+  @get('/files/{type}', {
     responses: {
       200: {
         content: {

@@ -1,9 +1,10 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -13,19 +14,20 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
-  Jurado,
-  InvitacionEvaluar,
+  InvitacionEvaluar, Jurado
 } from '../models';
 import {JuradoRepository} from '../repositories';
 
+@authenticate('admin', 'auxiliar')
 export class JuradoInvitacionEvaluarController {
   constructor(
     @repository(JuradoRepository) protected juradoRepository: JuradoRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @get('/jurados/{id}/invitacion-evaluars', {
     responses: {
       '200': {

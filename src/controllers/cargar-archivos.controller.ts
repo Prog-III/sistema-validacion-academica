@@ -2,34 +2,17 @@
 
 // import {inject} from '@loopback/core';
 
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {intercept} from '@loopback/core';
 import {
-  del, get,
-  getModelSchemaRef, HttpErrors, param, patch, post, put, Request, requestBody,
-  response,
+  post, Request, response,
   RestBindings
 } from '@loopback/rest';
 import path from 'path';
 import {cloudFilesRoutes} from '../config/index.config';
 import {filesInterceptor} from '../middleware/multer';
 import {cloudinary} from '../services/cloudinary.service';
-
-import {
-  Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
-  repository,
-  Where,
-} from '@loopback/repository';
-
-import {Solicitud} from '../models';
-import {SolicitudRepository, TipoSolicitudRepository} from '../repositories';
-
-import multer from 'multer';
-
-import {keys as llaves} from '../config/keys';
 
 
 export class CargarArchivosController {
@@ -38,12 +21,12 @@ export class CargarArchivosController {
   ) {
   }
 
-
   /**
    *
    * @param response
    * @param request
    */
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @post('/cargar_archivos')
   @intercept(filesInterceptor)
   @response(200, {

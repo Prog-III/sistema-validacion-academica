@@ -1,23 +1,25 @@
+import {authenticate} from '@loopback/authentication';
 import {
-  repository,
+  repository
 } from '@loopback/repository';
 import {
-  param,
   get,
-  getModelSchemaRef,
+  getModelSchemaRef, param
 } from '@loopback/rest';
 import {
   Departamento,
-  Facultad,
+  Facultad
 } from '../models';
 import {DepartamentoRepository} from '../repositories';
 
+@authenticate('admin')
 export class DepartamentoFacultadController {
   constructor(
     @repository(DepartamentoRepository)
     public departamentoRepository: DepartamentoRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/departamentos/{id}/facultad', {
     responses: {
       '200': {

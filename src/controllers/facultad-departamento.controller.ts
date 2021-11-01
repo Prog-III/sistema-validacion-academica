@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -20,11 +21,13 @@ import {
 } from '../models';
 import {FacultadRepository} from '../repositories';
 
+@authenticate('admin')
 export class FacultadDepartamentoController {
   constructor(
     @repository(FacultadRepository) protected facultadRepository: FacultadRepository,
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/facultads/{id}/departamentos', {
     responses: {
       '200': {

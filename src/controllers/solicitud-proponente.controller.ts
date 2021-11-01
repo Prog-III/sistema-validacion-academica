@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject, service} from '@loopback/core';
 import {
   Filter,
@@ -17,6 +18,8 @@ import {EstadoSolicitudRepository, LineaInvestigacionRepository, ModalidadReposi
 import {NotificacionesService} from '../services';
 
 require('dotenv').config();
+
+@authenticate('admin', 'auxiliar')
 export class SolicitudProponenteController {
   constructor(
     @repository(SolicitudRepository) protected solicitudRepository: SolicitudRepository,

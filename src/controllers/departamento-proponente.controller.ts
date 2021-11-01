@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Filter,
   repository
@@ -14,12 +15,14 @@ import {
 } from '../models';
 import {DepartamentoRepository, ProponenteDepartamentoRepository} from '../repositories';
 
+@authenticate('admin')
 export class DepartamentoProponenteController {
   constructor(
     @repository(DepartamentoRepository) protected departamentoRepository: DepartamentoRepository,
     @repository(ProponenteDepartamentoRepository) protected proponentedepartamentoRepository: ProponenteDepartamentoRepository
   ) { }
 
+  @authenticate('admin', 'auxiliar')
   @get('/departamentos/{id}/proponentes', {
     responses: {
       '200': {

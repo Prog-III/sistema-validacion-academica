@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -14,6 +15,7 @@ import {
 import {Jurado} from '../models';
 import {JuradoRepository} from '../repositories';
 
+@authenticate('admin')
 export class JuradoController {
   constructor(
     @repository(JuradoRepository)
@@ -52,6 +54,7 @@ export class JuradoController {
     return this.juradoRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director')
   @get('/jurados')
   @response(200, {
     description: 'Array of Jurado model instances',
@@ -89,6 +92,7 @@ export class JuradoController {
     return this.juradoRepository.updateAll(jurado, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'director', 'evaluador')
   @get('/jurados/{id}')
   @response(200, {
     description: 'Jurado model instance',

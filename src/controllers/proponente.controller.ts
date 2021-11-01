@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {intercept} from '@loopback/core';
 import {
@@ -21,7 +22,7 @@ import {Proponente} from '../models';
 import {ProponenteRepository, TipoVinculacionRepository} from '../repositories';
 import {cloudinary} from '../services/cloudinary.service';
 
-
+@authenticate('admin', 'auxiliar')
 export class ProponenteController {
   constructor(
     @repository(ProponenteRepository)

@@ -15,6 +15,7 @@ import {
 import {Comite} from '../models';
 import {ComiteRepository} from '../repositories';
 
+@authenticate('admin')
 export class ComiteController {
   constructor(
     @repository(ComiteRepository)
@@ -53,7 +54,7 @@ export class ComiteController {
     return this.comiteRepository.count(where);
   }
 
-  @authenticate('admin')
+  @authenticate('admin', 'auxiliar')
   @get('/comites')
   @response(200, {
     description: 'Array of Comite model instances',
