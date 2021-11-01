@@ -19,5 +19,7 @@ export * from './solicitud-proponente.model';
 export * from './solicitud.model';
 export * from './tipo-solicitud.model';
 export * from './tipo-vinculacion.model';
+export * from './usuario.model';
+
 
 
