@@ -218,23 +218,37 @@ export class InvitacionEvaluarController {
               let token = await this.servicioToken.ObtenerTokenTemporal(MD5(ConfiguracionUsuarios.claveSecretaJWT).toString());
               token = await token.text();
 
-              const usuario = await this.servicioUsuario.CrearUsuario({
-                nombres: juradoInvitado.nombre,
-                apellidos: 'No aplica',
-                documento: 'No aplica',
-                fecha_nacimiento: 'No aplica',
-                correo: juradoInvitado.email,
-                celular: juradoInvitado.telefono
-              } as Usuario, token);
+              const existeUsuario = await this.servicioUsuario.BuscarJuradoPorEmail(juradoInvitado.email, token);
+              const numeroCoincidencias = await existeUsuario.json();
 
-              if (usuario) {
-                let usuarioId = await usuario.json();
-                usuarioId = usuarioId._id;
+              if (numeroCoincidencias.count === 0) {
+                const usuario = await this.servicioUsuario.CrearUsuario({
+                  nombres: juradoInvitado.nombre,
+                  apellidos: 'No aplica',
+                  documento: 'No aplica',
+                  fecha_nacimiento: 'No aplica',
+                  correo: juradoInvitado.email,
+                  celular: juradoInvitado.telefono
+                } as Usuario, token);
 
-                await this.servicioUsuario.AsociarUsuarioRol(usuarioId, '617ac07f522bb52fccc4ffcd', token).then(res => console.log(res));
+                if (usuario) {
+                  let usuarioId = await usuario.json();
+                  usuarioId = usuarioId._id;
+
+                  await this.servicioUsuario.AsociarUsuarioRol(usuarioId, '617ac07f522bb52fccc4ffcd', token);
+                }
+              } else {
+                const notificacionCorreoUsuarioExistente = new NotificacionCorreo();
+
+                notificacionCorreoUsuarioExistente.asunto = 'Acceso al sistema';
+                notificacionCorreoUsuarioExistente.destinatario = `${juradoInvitado.email}`;
+                notificacionCorreoUsuarioExistente.saludo = `${Configuracion.saludo} ${juradoInvitado.nombre}`;
+                notificacionCorreoUsuarioExistente.mensaje = `Ya tiene un usuario asignado en el sistema para evaluar el trabajo ${solicitud.nombre_trabajo}. Recuerde que el usuario este correo electrónico y si ha olvidado la contraseña pueder recuperarla en el apartado de recuperar contraseña`;
+
+                this.servicioNotificaciones.EnviarCorreo(notificacionCorreoUsuarioExistente);
               }
 
-              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+              this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje);
             })
         } else if (nuevoEstadoInvitacion === 2) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
