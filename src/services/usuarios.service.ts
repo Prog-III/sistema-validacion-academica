@@ -22,6 +22,15 @@ export class UsuariosService {
     })
   }
 
+  async BuscarJuradoPorEmail(email: string, tokenAutenticacion: string) {
+    return await fetch(ConfiguracionUsuarios.urlObtenerUsuarioPorEmail(email), {
+      headers: {
+        'Authorization': `Bearer ${tokenAutenticacion}`,
+        'Content-Type': 'application/json'
+      },
+    });
+  }
+
   async AsociarUsuarioRol(idUsuario: string, idRol: string, tokenAutenticacion: string) {
     return await fetch(ConfiguracionUsuarios.urlAsociarUsuarioRol(idUsuario), {
       headers: {

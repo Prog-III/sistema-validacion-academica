@@ -1,6 +1,7 @@
 export namespace ConfiguracionUsuarios {
   export const urlServicioUsuarios = 'http://localhost:3002'
   export const urlCrearUsuario = `${urlServicioUsuarios}/usuarios`;
+  export const urlObtenerUsuarioPorEmail = (email: string): string => `${urlServicioUsuarios}/usuarios/count?where={"correo": "${email}"}`;
   export const urlAsociarUsuarioRol = (usuarioId: string): string => `${urlServicioUsuarios}/asociar-usuario-roles/${usuarioId}`;
 
   export const urlVerificarToken = `${urlServicioUsuarios}/verificar-token`
