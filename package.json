@@ -50,6 +50,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@azure/storage-blob": "^12.8.0",
     "@loopback/authentication": "^7.3.4",
     "@loopback/boot": "^3.4.3",
     "@loopback/core": "^2.18.0",
@@ -57,6 +58,7 @@
     "@loopback/rest": "^10.1.0",
     "@loopback/rest-explorer": "^3.3.3",
     "@loopback/service-proxy": "^3.2.3",
+    "azure-storage": "^2.10.5",
     "cloudinary": "^1.27.1",
     "crypto-js": "^4.1.1",
     "dotenv": "^10.0.0",

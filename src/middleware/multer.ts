@@ -37,6 +37,7 @@ const multerMiddlewareFile: ExpressRequestHandler = multer({
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname));
 ;
+console.log(file);
 
     if (mimetype && extname) return cb(null, true);
 

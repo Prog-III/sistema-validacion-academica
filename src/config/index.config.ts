@@ -17,8 +17,14 @@ const microsoft_azure = {
   database: process.env.AZURE_DATABASE
 }
 
+const azureStorage= {
+  accountName: process.env.AZURE_STORAGE_ACCOUNT,
+  containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
+}
 
-
+const server= {
+  port: process.env.PORT || 4398,
+}
 const cloudFilesRoutes = { //Ruta para guardar la imagen en el cloudinary-------VER ESTO
   proponente: 'vt_academicos/proponente',
   archivos: 'vt_academicos/archivos'
@@ -27,5 +33,7 @@ const cloudFilesRoutes = { //Ruta para guardar la imagen en el cloudinary-------
 export {
   cloudinary,
   cloudFilesRoutes,
-  microsoft_azure
+  microsoft_azure,
+  azureStorage,
+  server
 }

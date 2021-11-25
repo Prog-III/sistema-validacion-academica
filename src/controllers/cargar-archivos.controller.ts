@@ -6,18 +6,22 @@ import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/context';
 import {intercept} from '@loopback/core';
 import {
-  post, Request, response,
-  RestBindings
+  post, Request, response,Response,
+  RestBindings,get, oas,param
 } from '@loopback/rest';
 import path from 'path';
 import {cloudFilesRoutes} from '../config/index.config';
 import {filesInterceptor} from '../middleware/multer';
 import {cloudinary} from '../services/cloudinary.service';
+import {blobservice} from '../services/azure.service';
 
-
+import {server,azureStorage} from '../config/index.config'
+//import {Response} from 'node-fetch';
+const fs = require("fs/promises");
 export class CargarArchivosController {
   constructor(
     @inject(RestBindings.Http.REQUEST) private req: Request,
+    @inject(RestBindings.Http.RESPONSE) response: Response
   ) {
   }
 
@@ -26,7 +30,7 @@ export class CargarArchivosController {
    * @param response
    * @param request
    */
-  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
+ // @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @post('/cargar_archivos')
   @intercept(filesInterceptor)
   @response(200, {
@@ -70,6 +74,79 @@ export class CargarArchivosController {
 
     return ('El archivo no fue posible subirlo');
 
+  }
+ // @authenticate('admin', 'auxiliar', 'evaluador', 'director')
+  @post('/cargar_archivos_azure')
+  @intercept(filesInterceptor)
+  @response(200, {
+    description: 'Subida de Archivos',
+    content: {'application/json': {schema: {type: 'object'}}},
+  })
+
+  async cargarArchivoAzure(): Promise<String> {
+
+    const {file} = this.req;
+console.log(file);
+console.log(1);
+
+    if (file) {
+      console.log(file.path);
+
+      const onUploadFile = (err: {message: string | undefined;}, result: {name: any;}) => {
+        if (err) throw new Error(err.message);
+
+        fs.unlink(file.path);
+
+        return (result.name);
+      };
+console.log(file);
+
+      return blobservice.createBlockBlobFromLocalFile(
+        azureStorage.containerName,
+        file.filename,
+        file.path,
+        onUploadFile
+      );
+
+
+
+    }
+
+    return ('El archivo no fue posible subirlo');
+
+  }
+
+  @get('/descargar_archivos_azure/{id}')
+
+
+  async descargarArchivo(
+    @param.path.string('id') ruta: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+
+  ): Promise<any> {
+
+    try {
+
+
+      const onSendFile = (err: {message: string | undefined;}) => {
+        if (err) throw new Error(err.message);
+        (path.resolve(__dirname, `../../temp/${ruta}`));
+      };
+
+
+      const onGetFile = (err: {message: string | undefined;}) => {
+        if (err) throw new Error(err.message);
+
+
+        return response.sendFile(path.resolve(__dirname, `../../temp/${ruta}`), onSendFile);
+      };
+
+
+
+    }catch{
+
+    return ('El archivo no fue posible subirlo');
+    }
   }
 
 }
