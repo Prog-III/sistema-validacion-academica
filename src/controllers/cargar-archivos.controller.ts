@@ -118,36 +118,43 @@ console.log(file);
 
   @get('/descargar_archivos_azure/{id}')
 
-
   async descargarArchivo(
     @param.path.string('id') ruta: string,
     @inject(RestBindings.Http.RESPONSE) response: Response,
-
   ): Promise<any> {
-
     try {
+      ruta = ruta.trim();
 
+      const getFile = () =>
+        new Promise((resolve, reject) => {
+          blobservice.getBlobToLocalFile(
+            azureStorage.containerName,
+            ruta,
+            path.resolve(__dirname, `../../temp/${ruta}`),
+            (err: any) => {
+              if (err) return reject(false);
+              return resolve(true);
+            },
+          );
+        });
 
-      const onSendFile = (err: {message: string | undefined;}) => {
+      await getFile();
+
+      const onSendFile = (err: {message: string | undefined}) => {
         if (err) throw new Error(err.message);
-        (path.resolve(__dirname, `../../temp/${ruta}`));
+        fs.unlink(path.resolve(__dirname, `../../temp/${ruta}`));
       };
 
-
-      const onGetFile = (err: {message: string | undefined;}) => {
-        if (err) throw new Error(err.message);
-
-
-        return response.sendFile(path.resolve(__dirname, `../../temp/${ruta}`), onSendFile);
-      };
-
-
-
-    }catch{
-
-    return ('El archivo no fue posible subirlo');
+      response.download(
+        path.resolve(__dirname, `../../temp/${ruta}`),
+        onSendFile,
+      );
+      return response;
+    } catch {
+      return 'El archivo no fue posible subirlo';
     }
   }
-
 }
+
+
 //solucion de Github
