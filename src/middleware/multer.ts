@@ -28,7 +28,7 @@ const multerMiddleware: ExpressRequestHandler = multer({
       ),
     );
   },
-}).single('image_file');
+}).single('file');
 
 const multerMiddlewareFile: ExpressRequestHandler = multer({
   storage,

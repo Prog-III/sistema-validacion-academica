@@ -40,6 +40,7 @@ export class ProponenteController {
     content: {'application/json': {schema: getModelSchemaRef(Proponente)}},
   })
   async create(): Promise<Proponente> {
+
     const {
       primer_nombre,
       otros_nombres,
@@ -52,9 +53,18 @@ export class ProponenteController {
       id_tipo_vinculacion
 
     } = this.req.body;
+console.log(this.req.body);
 
     const {file} = this.req;
 
+
+    console.log(primer_nombre);
+    console.log(primer_apellido);
+    console.log(documento);
+    console.log(fecha_nacimiento);
+    console.log(email);
+    console.log(celular);
+    console.log(file);
     if (
       !primer_nombre ||
 
