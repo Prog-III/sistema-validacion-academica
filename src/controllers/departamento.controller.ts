@@ -54,7 +54,7 @@ export class DepartamentoController {
     return this.departamentoRepository.count(where);
   }
 
-  @authenticate('admin', 'auxliar')
+  @authenticate('admin', 'auxiliar')
   @get('/departamentos')
   @response(200, {
     description: 'Array of Departamento model instances',
