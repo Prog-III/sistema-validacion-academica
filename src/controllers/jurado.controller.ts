@@ -43,6 +43,26 @@ export class JuradoController {
     return this.juradoRepository.create(jurado);
   }
 
+  @post('/jurados-arreglo')
+  @response(200, {
+    description: 'Jurado model array instance',
+    content: {'application/json': {schema: {type: 'array'}}},
+  })
+  async createMany(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array'
+          }
+        },
+      },
+    })
+    jurados: Omit<Jurado[], 'id'>,
+  ): Promise<Jurado[]> {
+    return this.juradoRepository.createAll(jurados);
+  }
+
   @get('/jurados/count')
   @response(200, {
     description: 'Jurado model count',
