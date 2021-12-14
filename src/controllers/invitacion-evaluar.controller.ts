@@ -95,6 +95,7 @@ export class InvitacionEvaluarController {
     return this.invitacionEvaluarRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @get('/invitaciones-evaluar')
   @response(200, {
     description: 'Array of InvitacionEvaluar model instances',

@@ -54,7 +54,7 @@ export class ModalidadController {
     return this.modalidadRepository.count(where);
   }
 
-  @authenticate('admin')
+  @authenticate('admin', 'auxiliar')
   @get('/modalidades')
   @response(200, {
     description: 'Array of Modalidad model instances',
@@ -92,6 +92,7 @@ export class ModalidadController {
     return this.modalidadRepository.updateAll(modalidad, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @get('/modalidades/{id}')
   @response(200, {
     description: 'Modalidad model instance',

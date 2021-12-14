@@ -92,6 +92,7 @@ export class EstadoSolicitudController {
     return this.estadoSolicitudRepository.updateAll(estadoSolicitud, where);
   }
 
+  @authenticate('admin', 'auxiliar', 'evaluador')
   @get('/estado-solicitudes/{id}')
   @response(200, {
     description: 'EstadoSolicitud model instance',

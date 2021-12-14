@@ -74,7 +74,7 @@ export class JuradoController {
     return this.juradoRepository.count(where);
   }
 
-  @authenticate('admin', 'auxiliar', 'director')
+  @authenticate('admin', 'auxiliar', 'director', 'evaluador')
   @get('/jurados')
   @response(200, {
     description: 'Array of Jurado model instances',
