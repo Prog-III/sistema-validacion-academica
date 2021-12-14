@@ -77,7 +77,7 @@ export class InvitacionEvaluarController {
       datosNotificacion.mensaje = `
         ${Configuracion.mensajeInvitacionJurado}
         ${Configuracion.nombretrabajoArg} ${solicitudregistrado.nombre_trabajo}
-        <br /> <a href="http://localhost:4200/responder-invitacion-evaluar?hash=${hash}">Responder a invitación</a>
+        <br /> <a href="http://localhost:4200/evaluacion/responder-invitacion-evaluar/${hash}">Responder a invitación</a>
       `
       this.servicioNotificaciones.EnviarCorreo(datosNotificacion);
     }
@@ -181,13 +181,14 @@ export class InvitacionEvaluarController {
           schema: {
             type: 'object',
             properties: {
-              "nuevoEstado": {type: 'number'}
+              "nuevoEstado": {type: 'number'},
+              "observaciones": {type: 'string'}
             },
           }
         },
       },
     })
-    objetoEstadoInvitacion: {nuevoEstado: number},
+    objetoEstadoInvitacion: {nuevoEstado: number, observaciones: string},
   ): Promise<void> {
     const invitacionActual = await this.invitacionEvaluarRepository.findOne({
       where: {hash: parametroHash}
@@ -197,9 +198,10 @@ export class InvitacionEvaluarController {
       const estadoInvitacion = invitacionActual.estado_invitacion;
 
       if (estadoInvitacion === 0) {
-        const nuevoEstadoInvitacion = objetoEstadoInvitacion.nuevoEstado;
-        invitacionActual.estado_invitacion = nuevoEstadoInvitacion;
-        invitacionActual.fecha_respuesta = `${new Date}`
+        const {nuevoEstado, observaciones} = objetoEstadoInvitacion;
+        invitacionActual.estado_invitacion = nuevoEstado;
+        invitacionActual.fecha_respuesta = `${new Date}`;
+        invitacionActual.observaciones = observaciones;
 
         const juradoInvitado = await this.juradoRepository.findById(invitacionActual.id_jurado);
         const solicitud = await this.solicitudRepository.findById(invitacionActual.id_solicitud);
@@ -208,7 +210,7 @@ export class InvitacionEvaluarController {
         const saludo = `${Configuracion.saludo}`;
 
 
-        if (nuevoEstadoInvitacion === 1) {
+        if (nuevoEstado === 1) {
           invitacionActual.estado_evaluacion = 1;
 
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
@@ -250,7 +252,7 @@ export class InvitacionEvaluarController {
 
               this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje);
             })
-        } else if (nuevoEstadoInvitacion === 2) {
+        } else if (nuevoEstado === 2) {
           return await this.invitacionEvaluarRepository.updateById(invitacionActual.id, invitacionActual)
             .then(() => {
               const mensaje = `El jurado ${juradoInvitado.nombre} ha rechazado la invitacion a evaluar el trabajo: ${solicitud.nombre_trabajo}`;
