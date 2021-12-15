@@ -12,6 +12,7 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {StreamingProfiles} from 'cloudinary';
 import {Jurado} from '../models';
 import {JuradoRepository} from '../repositories';
 
@@ -165,4 +166,23 @@ export class JuradoController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.juradoRepository.deleteById(id);
   }
+
+
+  @get('/jurados-email/{id}')
+  @response(200, {
+    description: 'Jurado model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Jurado, {includeRelations: true}),
+      },
+    },
+  })
+  async findByEmail(
+    @param.path.number('id') id: number,
+    @param.filter(Jurado, {exclude: 'where'}) filter?: FilterExcludingWhere<Jurado>
+  ): Promise<Object> {
+    let jurado= await this.juradoRepository.findById(id, filter);
+    return {'dato':jurado.email};
+  }
+
 }
