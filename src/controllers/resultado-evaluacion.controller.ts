@@ -72,7 +72,26 @@ export class ResultadoEvaluacionController {
             El jurado ${jurado.nombre} ha evaluado el trabajo: '${solicitud.nombre_trabajo}'
             con las siguientes consideraciones: ${resultadoEvaluacionCreado.descripcion}`;
 
-          this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje)
+          this.servicioNotificaciones.NotificarCorreosNotificacion(asunto, saludo, mensaje);
+
+          const existeMasInvitacionesAEvaluar = await this.invitacionEvaluarRepository.findOne({
+            "where": {
+              "and": [
+                {"id_solicitud": invitacionEvaluar.id_solicitud},
+                {
+                  "or": [
+                    {"estado_evaluacion": 0},
+                    {"estado_evaluacion": 1}
+                  ]
+                }
+              ]
+            }
+          })
+
+          if (!existeMasInvitacionesAEvaluar) {
+            solicitud.id_estado = 2;
+            await this.solicitudRepository.updateById(solicitud.id, solicitud);
+          }
         })
     }
 
@@ -181,6 +200,23 @@ export class ResultadoEvaluacionController {
     description: 'ResultadoEvaluacion DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.resultadoEvaluacionRepository.deleteById(id);
+    const resultadoEvaluacion = await this.resultadoEvaluacionRepository.findById(id);
+    // INSERT INTO `sistema_validaciones_db`.`resultadoevaluacion` (`id`, `descripcion`, `fecha`, `formato_diligenciado`, `id_invitacion_evaluar`) VALUES ('1', 'assd', '2021-12-15 10:08:16', 'asadsfdsfafds', '13');
+
+    if (resultadoEvaluacion) {
+      const invitacionEvaluar = await this.invitacionEvaluarRepository.findById(resultadoEvaluacion.id_invitacion_evaluar);
+      invitacionEvaluar.estado_evaluacion = 1;
+
+      const solicitud = await this.solicitudRepository.findById(invitacionEvaluar.id_solicitud);
+      solicitud.id_estado = 1;
+      await this.solicitudRepository.updateById(solicitud.id, solicitud);
+
+      await this.resultadoEvaluacionRepository.deleteById(id)
+        .then(async () => {
+          await this.invitacionEvaluarRepository.updateById(invitacionEvaluar.id, invitacionEvaluar)
+
+        });
+
+    }
   }
 }
