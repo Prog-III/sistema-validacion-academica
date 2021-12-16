@@ -12,16 +12,17 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {StreamingProfiles} from 'cloudinary';
 import {Jurado} from '../models';
 import {JuradoRepository} from '../repositories';
 
-@authenticate('admin')
+//@authenticate('admin')//Se reemplaza por un autehenticate en cada accion
 export class JuradoController {
   constructor(
     @repository(JuradoRepository)
     public juradoRepository: JuradoRepository,
   ) { }
-
+  @authenticate('admin')
   @post('/jurados')
   @response(200, {
     description: 'Jurado model instance',
@@ -42,7 +43,7 @@ export class JuradoController {
   ): Promise<Jurado> {
     return this.juradoRepository.create(jurado);
   }
-
+  @authenticate('admin')
   @post('/jurados-arreglo')
   @response(200, {
     description: 'Jurado model array instance',
@@ -62,7 +63,7 @@ export class JuradoController {
   ): Promise<Jurado[]> {
     return this.juradoRepository.createAll(jurados);
   }
-
+  @authenticate('admin')
   @get('/jurados/count')
   @response(200, {
     description: 'Jurado model count',
@@ -128,7 +129,7 @@ export class JuradoController {
   ): Promise<Jurado> {
     return this.juradoRepository.findById(id, filter);
   }
-
+  @authenticate('admin')
   @patch('/jurados/{id}')
   @response(204, {
     description: 'Jurado PATCH success',
@@ -146,7 +147,7 @@ export class JuradoController {
   ): Promise<void> {
     await this.juradoRepository.updateById(id, jurado);
   }
-
+  @authenticate('admin')
   @put('/jurados/{id}')
   @response(204, {
     description: 'Jurado PUT success',
@@ -157,7 +158,7 @@ export class JuradoController {
   ): Promise<void> {
     await this.juradoRepository.replaceById(id, jurado);
   }
-
+  @authenticate('admin')
   @del('/jurados/{id}')
   @response(204, {
     description: 'Jurado DELETE success',
@@ -165,4 +166,23 @@ export class JuradoController {
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.juradoRepository.deleteById(id);
   }
+
+  @authenticate('admin','evaluador')
+  @get('/jurados-email/{id}')
+  @response(200, {
+    description: 'Jurado model instance',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Jurado, {includeRelations: true}),
+      },
+    },
+  })
+  async findByEmail(
+    @param.path.number('id') id: number,
+    @param.filter(Jurado, {exclude: 'where'}) filter?: FilterExcludingWhere<Jurado>
+  ): Promise<Object> {
+    let jurado= await this.juradoRepository.findById(id, filter);
+    return {'dato':jurado.email};
+  }
+
 }
