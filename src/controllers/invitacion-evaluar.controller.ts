@@ -95,7 +95,7 @@ export class InvitacionEvaluarController {
     return this.invitacionEvaluarRepository.count(where);
   }
 
-  @authenticate('admin', 'auxiliar', 'evaluador')
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director', 'temporal')
   @get('/invitaciones-evaluar')
   @response(200, {
     description: 'Array of InvitacionEvaluar model instances',
@@ -133,7 +133,7 @@ export class InvitacionEvaluarController {
     return this.invitacionEvaluarRepository.updateAll(invitacionEvaluar, where);
   }
 
-  @authenticate('admin', 'auxiliar', 'evaluador')
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @get('/invitaciones-evaluar/{id}')
   @response(200, {
     description: 'InvitacionEvaluar model instance',

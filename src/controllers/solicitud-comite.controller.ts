@@ -23,7 +23,7 @@ export class SolicitudComiteController {
     @repository(SolicitudComiteRepository) protected solicitudComiteRepository: SolicitudComiteRepository
   ) { }
 
-  @authenticate('admin', 'auxiliar', 'evaluador')
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @get('/solicitudes/{id}/comites', {
     responses: {
       '200': {

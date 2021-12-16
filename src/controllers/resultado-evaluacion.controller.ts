@@ -195,13 +195,13 @@ export class ResultadoEvaluacionController {
     await this.resultadoEvaluacionRepository.replaceById(id, resultadoEvaluacion);
   }
 
+  @authenticate('admin', 'director')
   @del('/resultados-evaluaciones/{id}')
   @response(204, {
     description: 'ResultadoEvaluacion DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     const resultadoEvaluacion = await this.resultadoEvaluacionRepository.findById(id);
-    // INSERT INTO `sistema_validaciones_db`.`resultadoevaluacion` (`id`, `descripcion`, `fecha`, `formato_diligenciado`, `id_invitacion_evaluar`) VALUES ('1', 'assd', '2021-12-15 10:08:16', 'asadsfdsfafds', '13');
 
     if (resultadoEvaluacion) {
       const invitacionEvaluar = await this.invitacionEvaluarRepository.findById(resultadoEvaluacion.id_invitacion_evaluar);

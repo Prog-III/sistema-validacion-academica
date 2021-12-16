@@ -23,7 +23,7 @@ export class DirectorStrategy implements AuthenticationStrategy {
     const {roles, estado} = infoUsuario.data;
     if (!estado) throw new HttpErrors[401]("El usuario no está habilitado en el sistema");
 
-    const esDirector = roles.includes("Director");
+    const esDirector = roles.includes("Director(a)");
     if (!esDirector) throw new HttpErrors[401]("El usuario no tiene los permisos necesarios para realizar la operacion");
 
     return Object.assign(infoUsuario);

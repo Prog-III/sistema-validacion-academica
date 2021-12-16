@@ -92,7 +92,7 @@ export class LineaInvestigacionController {
     return this.lineaInvestigacionRepository.updateAll(lineaInvestigacion, where);
   }
 
-  @authenticate('admin', 'auxiliar', 'evaluador')
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @get('/lineas-investigacion/{id}')
   @response(200, {
     description: 'LineaInvestigacion model instance',

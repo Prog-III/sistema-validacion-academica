@@ -92,7 +92,7 @@ export class ModalidadController {
     return this.modalidadRepository.updateAll(modalidad, where);
   }
 
-  @authenticate('admin', 'auxiliar', 'evaluador')
+  @authenticate('admin', 'auxiliar', 'evaluador', 'director')
   @get('/modalidades/{id}')
   @response(200, {
     description: 'Modalidad model instance',

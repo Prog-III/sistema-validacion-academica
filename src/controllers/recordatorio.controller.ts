@@ -94,6 +94,7 @@ export class RecordatorioController {
     return this.recordatorioRepository.count(where);
   }
 
+  @authenticate('admin', 'auxiliar')
   @get('/recordatorios')
   @response(200, {
     description: 'Array of Recordatorio model instances',

@@ -14,6 +14,7 @@ import {AdminStrategy} from './strategies/admin.strategy';
 import {AuxiliarStrategy} from './strategies/auxiliar.strategy';
 import {DirectorStrategy} from './strategies/director.strategy';
 import {EvaluadorStrategy} from './strategies/evaluador.strategy';
+import {TemporalStrategy} from './strategies/temporal.strategy';
 
 export {ApplicationConfig};
 
@@ -50,6 +51,7 @@ export class App extends BootMixin(
     registerAuthenticationStrategy(this, AuxiliarStrategy);
     registerAuthenticationStrategy(this, EvaluadorStrategy);
     registerAuthenticationStrategy(this, DirectorStrategy);
+    registerAuthenticationStrategy(this, TemporalStrategy);
     this.component(AuthenticationComponent);
   }
 }
